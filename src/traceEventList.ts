@@ -1,38 +1,25 @@
-import { TreeDataProvider, TreeItem, TreeItemCollapsibleState} from 'vscode';
-import { Event, TracetoolManager } from './tracetoolManager';
+import { TreeDataProvider, TreeItem} from 'vscode';
+import { TracetoolManager, TracetoolTreeItem } from './tracetoolManager';
 
-export class EventListTreeDataProvider implements TreeDataProvider<EventListItem> {
+export class EventListTreeDataProvider implements TreeDataProvider<TracetoolTreeItem> {
 
     constructor() {
 
     }
 
-    getTreeItem(element: EventListItem): TreeItem {
+    getTreeItem(element: TracetoolTreeItem): TreeItem {
         return element;
     }
 
-    getChildren(element?: EventListItem): Thenable<EventListItem[]> {
+    getChildren(element?: TracetoolTreeItem): Thenable<TracetoolTreeItem[]> {
         const tracetoolManager = TracetoolManager.instance;
-        tracetoolManager.getAllEvents();
-        const eventList = element ? element.event.children : tracetoolManager.events;
         
-        let eventListItem: EventListItem[] = [];
+        const eventList = element && element.event ? element.event.children : tracetoolManager.events;
+        
+        let eventListItem: TracetoolTreeItem[] = [];
         eventList.forEach(event => {
-            eventListItem.push(new EventListItem("Transaction "+event.types[0], "regex", event));
+            eventListItem.push(new TracetoolTreeItem("Transaction "+event.types[0], "regex", event));
         });
         return Promise.resolve(eventListItem);
-    }
-}
-
-export class EventListItem extends TreeItem {
-    public searchRegex: string;
-    public event: Event;
-
-    constructor(public readonly label: string, searchRegex: string, event: Event) {
-        super(label, event.children.length > 0 ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.None);
-        this.contextValue = 'EventListItem'; // Used for "when" condition in package.json
-        this.command = undefined; // Make item non-clickable
-        this.searchRegex = searchRegex;
-        this.event = event;
     }
 }

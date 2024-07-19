@@ -68,6 +68,11 @@
 				"command": "tracetool.nextOccurance",
 				"title": "Next occurance",
 				"icon": "media/icons/arrowDown.svg"
+			},
+			{
+				"command": "tracetool.eventOccurance",
+				"title": "Current event first occurance",
+				"icon": "media/icons/arrowRight.svg"
 			}
 		],
 		"taskDefinitions": [
@@ -80,12 +85,17 @@
 			{
 				"command": "tracetool.nextOccurance",
 				"group": "inline@1",
-				"when": "view == trace-navigation || view == trace-policyList"
+				"when": "view == trace-navigation || view == trace-policyList || view == trace-eventList"
 			},
 			{
 			  "command": "tracetool.previousOccurance",
 			  "group": "inline",
-			  "when": "view == trace-navigation || view == trace-policyList"
+			  "when": "view == trace-navigation || view == trace-policyList || view == trace-eventList"
+			},
+			{
+			  "command": "tracetool.eventOccurance",
+			  "group": "inline",
+			  "when": "view == trace-navigation || view == trace-policyList || view == trace-eventList"
 			}
 		  ]
 		}

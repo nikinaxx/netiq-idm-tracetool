@@ -1,19 +1,20 @@
-import {window, TreeDataProvider, TreeItem, TreeItemCollapsibleState, TextEditorRevealType, Range, Selection} from 'vscode';
+import {window, TreeDataProvider, TreeItem } from 'vscode';
 import * as rf from './regexFunctions';
+import { TracetoolTreeItem } from './tracetoolManager';
 
-export class PolicyListTreeDataProvider implements TreeDataProvider<PolicyListItem> {
+export class PolicyListTreeDataProvider implements TreeDataProvider<TracetoolTreeItem> {
     
-    private items: PolicyListItem[];
+    private items: TracetoolTreeItem[];
 
     constructor() {
         this.items = [];
     }
 
-    getTreeItem(element: PolicyListItem): TreeItem {
+    getTreeItem(element: TracetoolTreeItem): TreeItem {
         return element;
     }
 
-    getChildren(element?: PolicyListItem): Thenable<PolicyListItem[]> {
+    getChildren(element?: TracetoolTreeItem): Thenable<TracetoolTreeItem[]> {
         if (element) {
             return Promise.resolve([]);
         } else {
@@ -29,22 +30,11 @@ export class PolicyListTreeDataProvider implements TreeDataProvider<PolicyListIt
         const text = activeEditor.document.getText();
         const uniquePolicies = rf.uniqueMatches(text, "(?<=Applying policy:) %\\+C%14C(.*)%-C", 1);
 
-        let items: PolicyListItem[] = [];
+        let items: TracetoolTreeItem[] = [];
         uniquePolicies.forEach(policyName => {
-            items.push(new PolicyListItem(policyName, policyName));
+            items.push(new TracetoolTreeItem(policyName, policyName));
         });
 
         this.items = items;
-    }
-}
-
-export class PolicyListItem extends TreeItem {
-    public searchRegex: string;
-
-    constructor(public readonly label: string, searchRegex: string) {
-        super(label, TreeItemCollapsibleState.None);
-        this.contextValue = 'PolicyListItem'; // Used for "when" condition in package.json
-        this.command = undefined; // Make item non-clickable
-        this.searchRegex = searchRegex;
     }
 }

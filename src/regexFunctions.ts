@@ -1,3 +1,32 @@
+export function findAllMatches(text: string, regexStr: string) {
+    const regex = new RegExp(regexStr, "g");
+    const matches = [...text.matchAll(regex)];
+    return matches;
+}
+
+export function countMatches(text: string, regexStr: string) {
+    const matches = findAllMatches(text, regexStr);
+    return matches.length;
+}
+
+export function uniqueMatches(text: string, regexStr: string, capturingGroup: number) {
+    const matches = findAllMatches(text, regexStr);
+    const uniqueValues = Array.from(
+        new Set(matches.map(match => match[capturingGroup])) // Extract group 1 values and create a Set to ensure uniqueness
+    );
+    return uniqueValues;
+}
+
+export function getFirstOccurance(text: string, regexStr: string) {
+    const matches = findAllMatches(text, regexStr);
+    return matches.length > 0 ? matches[0] : null;
+}
+
+export function getLastOccurance(text: string, regexStr: string) {
+    const matches = findAllMatches(text, regexStr);
+    return matches.length > 0 ? matches[matches.length-1] : null;
+}
+
 export function getPrevOccurance(text: string, currentIndex: number, regexStr: string) {
     const textBeforeCurrentPos = text.substring(0, currentIndex);
     const regex = new RegExp(regexStr, "g");
@@ -24,23 +53,4 @@ export function getNextOccurance(text: string, currentIndex: number, regexStr: s
 export function getIndexOfNextOccurance(text: string, currentIndex: number, regexStr: string) {
     const match = getNextOccurance(text, currentIndex, regexStr);
     return match ? match.index : null;
-}
-
-export function findAllMatches(text: string, regexStr: string) {
-    const regex = new RegExp(regexStr, "g");
-    const matches = [...text.matchAll(regex)];
-    return matches;
-}
-
-export function countMatches(text: string, regexStr: string) {
-    const matches = findAllMatches(text, regexStr);
-    return matches.length;
-}
-
-export function uniqueMatches(text: string, regexStr: string, capturingGroup: number) {
-    const matches = findAllMatches(text, regexStr);
-    const uniqueValues = Array.from(
-        new Set(matches.map(match => match[capturingGroup])) // Extract group 1 values and create a Set to ensure uniqueness
-    );
-    return uniqueValues;
 }

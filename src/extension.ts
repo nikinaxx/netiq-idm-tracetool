@@ -5,7 +5,7 @@ import { NavigationTreeDataProvider } from './traceNavigation';
 import { PolicyListTreeDataProvider } from './tracePolicyList';
 import { BookmarksTreeDataProvider } from './traceBookmarks';
 import { StatsWebviewViewProvider } from './traceStats';
-import { showInputBox, nextOccuranceCommand, previousOccuranceCommand } from './commands';
+import { showInputBox, nextOccuranceCommand, previousOccuranceCommand, currentEventOccuranceCommand } from './commands';
 
 export function activate(context: ExtensionContext) {
 
@@ -30,8 +30,9 @@ export function activate(context: ExtensionContext) {
 	const abc = commands.registerCommand('tracetool.addBookmark', showInputBox);
 	const poc = commands.registerCommand('tracetool.previousOccurance', (item) => previousOccuranceCommand(item));
 	const noc = commands.registerCommand('tracetool.nextOccurance', (item) => nextOccuranceCommand(item));
+	const eoc = commands.registerCommand('tracetool.eventOccurance', (item) => currentEventOccuranceCommand(item));
 
-	context.subscriptions.push(abc, poc, noc);
+	context.subscriptions.push(abc, poc, noc, eoc);
 
 	// Events
 	

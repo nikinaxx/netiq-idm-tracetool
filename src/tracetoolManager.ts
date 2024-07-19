@@ -1,4 +1,4 @@
-import { window } from 'vscode';
+import { TreeItem, TreeItemCollapsibleState, window } from 'vscode';
 import * as rf from './regexFunctions';
 
 export class TracetoolManager
@@ -7,6 +7,7 @@ export class TracetoolManager
 
     private _currentPosition: number;
     private _events: Event[];
+    private _currentEvent: Event|undefined;
 
     private constructor()
     {
@@ -29,22 +30,27 @@ export class TracetoolManager
     }
 
     public get events() {
+        this._events = this.getAllEvents();
         return this._events;
     }
     public set events(value: Event[]) {
         this._events = value;
     }
 
-    public getAllEvents() {
+    public get currentEvent() {
+        this._events = this.getAllEvents();
+        this._currentEvent = this.getCurrentEvent();
+        return this._currentEvent;
+    }
+
+    private getAllEvents() {
         const activeEditor = window.activeTextEditor;
-        if (!activeEditor) {return;} 
+        if (!activeEditor) {return [];} 
 
         const text = activeEditor.document.getText();
         const allEventEdges = rf.findAllMatches(text, "Start transaction\|End transaction");
 
-        const allEvents = this.calculateEventsFromEdges(allEventEdges);
-
-	    this._events = allEvents;
+        return this.calculateEventsFromEdges(allEventEdges);
     }
 
     private calculateEventsFromEdges(allEventEdges: RegExpMatchArray[]) {
@@ -74,14 +80,30 @@ export class TracetoolManager
         }
         return events;
     }
+
+    private getCurrentEvent() {
+        const activeEditor = window.activeTextEditor;
+        if (!activeEditor) {
+            return undefined;
+        }
+        let currentEventsList = this.events.filter(e => 
+            e.startIndex && 
+            e.endIndex && 
+            e.startIndex < this.currentPosition && this.currentPosition < e.endIndex
+        );
+        if (currentEventsList.length === 0) {
+            return undefined;
+        }
+        return currentEventsList[currentEventsList.length-1];
+    }
 }
 
 export class Event {
     public startIndex: number|undefined = undefined;
     public endIndex: number|undefined = undefined;
     public children: Event[] = [];
-    private _text: string|undefined;
-    private _types: string[]|undefined;
+    private _text: string = "";
+    private _types: string[] = [];
 
     constructor (startIndex?: number, endIndex?: number) {
         this.startIndex = startIndex;
@@ -119,5 +141,18 @@ export class Event {
         }
 
         return ["add"];
+    }
+}
+
+export class TracetoolTreeItem extends TreeItem {
+    public searchRegex: string;
+    public event: Event|undefined;
+
+    constructor(public readonly label: string, searchRegex: string, event?: Event) {
+        super(label, event && event.children && event.children.length > 0 ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.None);
+        this.contextValue = 'tracetool-tree-item'; // Used for "when" condition in package.json
+        this.command = undefined; // Make item non-clickable
+        this.searchRegex = searchRegex;
+        this.event = event;
     }
 }

@@ -1,8 +1,6 @@
 import { window, Position, Range, Uri, OverviewRulerLane, ThemeColor, TextEditorDecorationType, DecorationRenderOptions, TextEditorRevealType, Selection } from 'vscode';
 import * as rf from './regexFunctions';
-import { NavigationItem } from './traceNavigation';
-import { PolicyListItem } from './tracePolicyList';
-import { TracetoolManager } from './tracetoolManager';
+import { TracetoolManager, TracetoolTreeItem } from './tracetoolManager';
 
 function createGutterRulerDecoration(
     overviewRulerLane?: OverviewRulerLane,
@@ -88,25 +86,62 @@ export async function showInputBox() {
 	activeEditor.setDecorations(decorator.gutterDecoration, [decoration]);
 }
 
-export function previousOccuranceCommand(item: NavigationItem|PolicyListItem) {
-    if (!item.searchRegex) {return;}
-    goToOccurance(item.searchRegex, rf.getPrevOccurance);
+export function currentEventOccuranceCommand(item: TracetoolTreeItem) {
+    if (!item.searchRegex) {
+        window.showErrorMessage('Item doesnt have regex');
+        return;
+    }
+    const activeEditor = window.activeTextEditor;
+    if (!activeEditor) {return;}
+    const tracetoolManager = TracetoolManager.instance;
+    const currentEvent = tracetoolManager.currentEvent;
+    if (!currentEvent || ! currentEvent.startIndex) {
+		window.showErrorMessage('No current event');
+        return;
+    }
+    const text = currentEvent.text;
+    const match = rf.getFirstOccurance(text, item.searchRegex);
+    if (!match || !match.index) {
+        window.showErrorMessage('No match');
+        return;
+    }
+    match.index += currentEvent.startIndex;
+    goToOccurance(match);
 }
 
-export function nextOccuranceCommand(item: NavigationItem|PolicyListItem) {
-    if (!item.searchRegex) {return;}
-    goToOccurance(item.searchRegex, rf.getNextOccurance);
-}
-
-function goToOccurance(searchTerm: string, matchFunction: (text: string, currentIndex: number, regexStr: string)=>RegExpExecArray|null) {
+export function previousOccuranceCommand(item: TracetoolTreeItem) {
+    if (!item.searchRegex) {
+        window.showErrorMessage('Item doesnt have regex');
+        return;
+    }
     const activeEditor = window.activeTextEditor;
     if (!activeEditor) {return;}
 	const tracetoolManager = TracetoolManager.instance;
 
     const text = activeEditor.document.getText();
+    const match = rf.getPrevOccurance(text, tracetoolManager.currentPosition, item.searchRegex);
+    goToOccurance(match);
+}
 
-    const match = matchFunction(text, tracetoolManager.currentPosition, searchTerm);
-    if (!match) { return; }
+export function nextOccuranceCommand(item: TracetoolTreeItem) {
+    if (!item.searchRegex) {
+        window.showErrorMessage('Item doesnt have regex');
+        return;
+    }
+    const activeEditor = window.activeTextEditor;
+    if (!activeEditor) {return;}
+	const tracetoolManager = TracetoolManager.instance;
+
+    const text = activeEditor.document.getText();
+    const match = rf.getNextOccurance(text, tracetoolManager.currentPosition, item.searchRegex);
+    goToOccurance(match);
+}
+
+function goToOccurance(match: RegExpMatchArray|null) {
+    if (!match || !match.index) {return;}
+    const activeEditor = window.activeTextEditor;
+    if (!activeEditor) {return;}
+	const tracetoolManager = TracetoolManager.instance;
 
     const startPosition = activeEditor.document.positionAt(match.index);
     const endPosition = activeEditor.document.positionAt(match.index + match[0].length);
