@@ -86,6 +86,21 @@ export async function showInputBox() {
 	activeEditor.setDecorations(decorator.gutterDecoration, [decoration]);
 }
 
+export function goToTransactionCommand(item: TracetoolTreeItem) {
+    if (!item.event || !item.event.startIndex) {
+        window.showErrorMessage('Item doesnt have an event or event start index');
+        return;
+    }
+    const activeEditor = window.activeTextEditor;
+    if (!activeEditor) {return;}
+    
+    const startPosition = activeEditor.document.positionAt(item.event.startIndex);
+    const startLineText = activeEditor.document.lineAt(startPosition.line).text;
+    const endPosition = activeEditor.document.positionAt(item.event.startIndex + startLineText.length);
+    activeEditor.selection = new Selection(startPosition, endPosition);
+    activeEditor.revealRange(new Range(startPosition, endPosition), TextEditorRevealType.AtTop);
+}
+
 export function currentEventOccuranceCommand(item: TracetoolTreeItem) {
     if (!item.searchRegex) {
         window.showErrorMessage('Item doesnt have regex');

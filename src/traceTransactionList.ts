@@ -21,7 +21,7 @@ export class TransactionListTreeDataProvider implements TreeDataProvider<Traceto
         eventList.forEach(event => {
             const formattedTimestamp = formatTimestamp(event.startTimestamp);
             const label = formattedTimestamp + " " + event.types.join(' ');
-            eventListItem.push(new TracetoolTreeItem(label, "regex", event));
+            eventListItem.push(new TracetoolTreeItem(label, event.startTimestamp, event));
         });
         return Promise.resolve(eventListItem);
     }

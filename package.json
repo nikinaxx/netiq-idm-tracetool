@@ -73,6 +73,11 @@
 				"command": "tracetool.eventOccurance",
 				"title": "Current event first occurance",
 				"icon": "media/icons/arrowRight.svg"
+			},
+			{
+				"command": "tracetool.goToTransaction",
+				"title": "Go to transaction",
+				"icon": "media/icons/arrowRight.svg"
 			}
 		],
 		"taskDefinitions": [],
@@ -92,7 +97,12 @@
 				{
 					"command": "tracetool.eventOccurance",
 					"group": "inline",
-					"when": "view == trace-navigation || view == trace-policyList || view == trace-transactionList"
+					"when": "view == trace-navigation || view == trace-policyList"
+				},
+				{
+					"command": "tracetool.goToTransaction",
+					"group": "inline",
+					"when": "view == trace-transactionList"
 				}
 			]
 		}

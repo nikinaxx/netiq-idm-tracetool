@@ -5,7 +5,7 @@ import { NavigationTreeDataProvider } from './traceNavigation';
 import { PolicyListTreeDataProvider } from './tracePolicyList';
 import { BookmarksTreeDataProvider } from './traceBookmarks';
 import { StatsWebviewViewProvider } from './traceStats';
-import { showInputBox, nextOccuranceCommand, previousOccuranceCommand, currentEventOccuranceCommand } from './commands';
+import { showInputBox, nextOccuranceCommand, previousOccuranceCommand, currentEventOccuranceCommand, goToTransactionCommand } from './commands';
 
 export function activate(context: ExtensionContext) {
 
@@ -31,6 +31,7 @@ export function activate(context: ExtensionContext) {
 	const poc = commands.registerCommand('tracetool.previousOccurance', (item) => previousOccuranceCommand(item));
 	const noc = commands.registerCommand('tracetool.nextOccurance', (item) => nextOccuranceCommand(item));
 	const eoc = commands.registerCommand('tracetool.eventOccurance', (item) => currentEventOccuranceCommand(item));
+	const gtoc = commands.registerCommand('tracetool.goToTransaction', (item) => goToTransactionCommand(item));
 
 	context.subscriptions.push(abc, poc, noc, eoc);
 
