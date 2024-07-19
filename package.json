@@ -82,6 +82,12 @@
 				"title": "Go to transaction",
 				"icon": "media/icons/arrowRight.svg",
 				"category": "Tracetool"
+			},
+			{
+				"command": "tracetool.goToTransactionBottom",
+				"title": "Go to transaction bottom",
+				"icon": "media/icons/arrowBottom.svg",
+				"category": "Tracetool"
 			}
 		],
 		"taskDefinitions": [],
@@ -106,6 +112,11 @@
 				{
 					"command": "tracetool.goToTransaction",
 					"group": "inline",
+					"when": "view == trace-transactionList"
+				},
+				{
+					"command": "tracetool.goToTransactionBottom",
+					"group": "inline@1",
 					"when": "view == trace-transactionList"
 				}
 			]

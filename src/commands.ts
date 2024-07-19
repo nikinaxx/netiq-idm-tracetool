@@ -105,6 +105,26 @@ export function goToTransactionCommand(item: TracetoolTreeItem) {
     revealPosition(item.event.startIndex, startLineText.length);
 }
 
+export function goToTransactionBottomCommand(item: TracetoolTreeItem) {
+    if (!item || !item.searchRegex) {
+        window.showErrorMessage('No item or item doesnt have regex');
+        return;
+    }
+    if (!item.event || !item.event.endIndex) {
+        window.showErrorMessage('Item doesnt have an event or event end index');
+        return;
+    }
+    const activeEditor = window.activeTextEditor;
+    if (!activeEditor) {return;}
+    
+    const startIndex = getLineStartIndex(item.event.endIndex);
+    if (!startIndex) { return; }
+    const startPosition = activeEditor.document.positionAt(item.event.endIndex);
+    const lineText = activeEditor.document.lineAt(startPosition.line).text;
+
+    revealPosition(startIndex, lineText.length);
+}
+
 export function currentEventOccuranceCommand(item: TracetoolTreeItem) {
     if (!item || !item.searchRegex) {
         window.showErrorMessage('No item or item doesnt have regex');
