@@ -47,8 +47,8 @@ export function getTransactionListChildren(element?: TracetoolTreeItem): Thenabl
     let eventListItem: TracetoolTreeItem[] = [];
     eventList.forEach(event => {
         const formattedTimestamp = formatTimestamp(event.startTimestamp);
-        const label = formattedTimestamp + " " + event.types.join(' ');
-        eventListItem.push(new TracetoolTreeItem(label, event.startTimestamp, event));
+        const description = event.types.join(' ');
+        eventListItem.push(new TracetoolTreeItem(formattedTimestamp, event.startTimestamp, event, description));
     });
     return Promise.resolve(eventListItem);
 }
@@ -89,11 +89,12 @@ export class TracetoolTreeItem extends TreeItem {
     public searchRegex: string;
     public event: Event|undefined;
 
-    constructor(public readonly label: string, searchRegex: string, event?: Event) {
-        super(label, event && event.children && event.children.length > 0 ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.None);
+    constructor(public readonly labelText: string, searchRegex: string, event?: Event, descriptionText?: string) {
+        super(labelText, event && event.children && event.children.length > 0 ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.None);
         this.contextValue = 'tracetool-tree-item'; // Used for "when" condition in package.json
         this.command = undefined; // Make item non-clickable
         this.searchRegex = searchRegex;
         this.event = event;
+        this.description = descriptionText;
     }
 }

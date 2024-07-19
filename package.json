@@ -62,22 +62,26 @@
 			{
 				"command": "tracetool.previousOccurance",
 				"title": "Previous occurance",
-				"icon": "media/icons/arrowUp.svg"
+				"icon": "media/icons/arrowUp.svg",
+				"category": "Tracetool"
 			},
 			{
 				"command": "tracetool.nextOccurance",
 				"title": "Next occurance",
-				"icon": "media/icons/arrowDown.svg"
+				"icon": "media/icons/arrowDown.svg",
+				"category": "Tracetool"
 			},
 			{
 				"command": "tracetool.eventOccurance",
 				"title": "Current event first occurance",
-				"icon": "media/icons/arrowRight.svg"
+				"icon": "media/icons/arrowRight.svg",
+				"category": "Tracetool"
 			},
 			{
 				"command": "tracetool.goToTransaction",
 				"title": "Go to transaction",
-				"icon": "media/icons/arrowRight.svg"
+				"icon": "media/icons/arrowRight.svg",
+				"category": "Tracetool"
 			}
 		],
 		"taskDefinitions": [],
@@ -87,12 +91,12 @@
 				{
 					"command": "tracetool.nextOccurance",
 					"group": "inline@1",
-					"when": "view == trace-navigation || view == trace-policyList || view == trace-transactionList"
+					"when": "view == trace-navigation || view == trace-policyList"
 				},
 				{
 					"command": "tracetool.previousOccurance",
 					"group": "inline",
-					"when": "view == trace-navigation || view == trace-policyList || view == trace-transactionList"
+					"when": "view == trace-navigation || view == trace-policyList"
 				},
 				{
 					"command": "tracetool.eventOccurance",

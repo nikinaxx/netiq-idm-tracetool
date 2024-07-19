@@ -88,6 +88,10 @@ export async function showInputBox() {
 }
 
 export function goToTransactionCommand(item: TracetoolTreeItem) {
+    if (!item || !item.searchRegex) {
+        window.showErrorMessage('No item or item doesnt have regex');
+        return;
+    }
     if (!item.event || !item.event.startIndex) {
         window.showErrorMessage('Item doesnt have an event or event start index');
         return;
@@ -102,8 +106,8 @@ export function goToTransactionCommand(item: TracetoolTreeItem) {
 }
 
 export function currentEventOccuranceCommand(item: TracetoolTreeItem) {
-    if (!item.searchRegex) {
-        window.showErrorMessage('Item doesnt have regex');
+    if (!item || !item.searchRegex) {
+        window.showErrorMessage('No item or item doesnt have regex');
         return;
     }
     const activeEditor = window.activeTextEditor;
@@ -126,8 +130,8 @@ export function currentEventOccuranceCommand(item: TracetoolTreeItem) {
 }
 
 export function previousOccuranceCommand(item: TracetoolTreeItem) {
-    if (!item.searchRegex) {
-        window.showErrorMessage('Item doesnt have regex');
+    if (!item || !item.searchRegex) {
+        window.showErrorMessage('No item or item doesnt have regex');
         return;
     }
     const activeEditor = window.activeTextEditor;
@@ -142,8 +146,8 @@ export function previousOccuranceCommand(item: TracetoolTreeItem) {
 }
 
 export function nextOccuranceCommand(item: TracetoolTreeItem) {
-    if (!item.searchRegex) {
-        window.showErrorMessage('Item doesnt have regex');
+    if (!item || !item.searchRegex) {
+        window.showErrorMessage('No item or item doesnt have regex');
         return;
     }
     const activeEditor = window.activeTextEditor;
