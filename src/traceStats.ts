@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
 import * as rf from './regexFunctions';
+import { TracetoolManager } from './tracetoolManager';
+
 
 export class StatsWebviewViewProvider implements vscode.WebviewViewProvider {
 
@@ -85,29 +87,13 @@ export class StatsWebviewViewProvider implements vscode.WebviewViewProvider {
 		const activeEditor = vscode.window.activeTextEditor;
         if (!activeEditor) { return; }
 		if (!this._view) { return; }
-
-		const text = activeEditor.document.getText();
-		const cursorIndex = activeEditor.document.offsetAt(activeEditor.selection.active);
 		
-		const indexPrevStart = rf.getIndexOfPrevOccurance(text, cursorIndex, "Start transaction");
-		const indexNextStart = rf.getIndexOfNextOccurance(text, cursorIndex, "Start transaction");
-		const indexPrevEnd = rf.getIndexOfPrevOccurance(text, cursorIndex, "End transaction");
-		const indexNextEnd = rf.getIndexOfNextOccurance(text, cursorIndex, "End transaction");
-
-		// Keep only text between matches
-		let textBetween = "";
-		if (indexPrevStart !== null && indexNextEnd !== null && indexNextStart !== null && indexPrevEnd !== null && (indexPrevStart > indexPrevEnd) && (indexNextEnd < indexNextStart)) {
-        	textBetween = text.substring(indexPrevStart, indexNextEnd);
-		}
-		else if (!indexPrevStart && indexNextEnd !== null && indexNextStart !== null && (indexNextEnd < indexNextStart)) {
-			textBetween = text.substring(0, indexNextEnd);
-		}
-		else if (!indexNextEnd && indexPrevEnd !== null && indexPrevStart !== null && (indexPrevStart > indexPrevEnd)) {
-			textBetween = text.substring(indexPrevStart, text.length);
-		}
+		let errorCount = 0;
 		
-		// Count number of error matches in this text
-		const errorCount = rf.countMatches(textBetween, "error");
+		const tracetoolManager = TracetoolManager.instance;
+		if (tracetoolManager.currentEvent) {
+			errorCount = rf.countMatches(tracetoolManager.currentEvent.text, "error");
+		}
 
 		this._view.webview.postMessage({ command: 'refreshTransactionErrorsStats', count: errorCount });
 	}
