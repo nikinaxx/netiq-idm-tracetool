@@ -1,20 +1,16 @@
 import { ExtensionContext, window, commands } from 'vscode';
-import { FindWebviewViewProvider } from './traceFind';
-import { TransactionListTreeDataProvider } from './traceTransactionList';
-import { NavigationTreeDataProvider } from './traceNavigation';
-import { PolicyListTreeDataProvider } from './tracePolicyList';
-import { BookmarksTreeDataProvider } from './traceBookmarks';
 import { StatsWebviewViewProvider } from './traceStats';
 import { showInputBox, nextOccuranceCommand, previousOccuranceCommand, currentEventOccuranceCommand, goToTransactionCommand } from './commands';
+import { TracetoolTreeDataProvider, getBookmarksChildren, getPolicyListChildren, getTraceNavigationChildren, getTransactionListChildren } from './tracetoolTreeDataProvider';
 
 export function activate(context: ExtensionContext) {
 
 	// View providers
 	//const fwvp = new FindWebviewViewProvider(context.extensionUri);
-	const ntvp = new NavigationTreeDataProvider();
-	const pltvp = new PolicyListTreeDataProvider();
-	const tltvp = new TransactionListTreeDataProvider();
-	const btvp = new BookmarksTreeDataProvider();
+	const ntvp = new TracetoolTreeDataProvider(getTraceNavigationChildren);
+	const pltvp = new TracetoolTreeDataProvider(getPolicyListChildren);
+	const tltvp = new TracetoolTreeDataProvider(getTransactionListChildren);
+	const btvp = new TracetoolTreeDataProvider(getBookmarksChildren);
 	const swvp = new StatsWebviewViewProvider(context.extensionUri);
 
 	//const rfwvp =	window.registerWebviewViewProvider('trace-find', fwvp);

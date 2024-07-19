@@ -1,6 +1,7 @@
 import { window, Position, Range, Uri, OverviewRulerLane, ThemeColor, TextEditorDecorationType, DecorationRenderOptions, TextEditorRevealType, Selection } from 'vscode';
 import * as rf from './regexFunctions';
-import { TracetoolManager, TracetoolTreeItem } from './tracetoolManager';
+import { TracetoolManager } from './tracetoolManager';
+import { TracetoolTreeItem } from './tracetoolTreeDataProvider';
 
 function createGutterRulerDecoration(
     overviewRulerLane?: OverviewRulerLane,

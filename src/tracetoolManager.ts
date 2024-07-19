@@ -200,16 +200,3 @@ export class Event {
         return typeList;
     }
 }
-
-export class TracetoolTreeItem extends TreeItem {
-    public searchRegex: string;
-    public event: Event|undefined;
-
-    constructor(public readonly label: string, searchRegex: string, event?: Event) {
-        super(label, event && event.children && event.children.length > 0 ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.None);
-        this.contextValue = 'tracetool-tree-item'; // Used for "when" condition in package.json
-        this.command = undefined; // Make item non-clickable
-        this.searchRegex = searchRegex;
-        this.event = event;
-    }
-}
