@@ -2,7 +2,7 @@ import { TreeDataProvider, TreeItem} from 'vscode';
 import { TracetoolManager, TracetoolTreeItem } from './tracetoolManager';
 import { formatTimestamp as formatTimestamp } from './commands';
 
-export class EventListTreeDataProvider implements TreeDataProvider<TracetoolTreeItem> {
+export class TransactionListTreeDataProvider implements TreeDataProvider<TracetoolTreeItem> {
 
     constructor() {
 

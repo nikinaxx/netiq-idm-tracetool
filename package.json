@@ -28,11 +28,6 @@
 			"tracetool-sidebar-view": [
 				{
 					"type": "tree",
-					"id": "trace-eventList",
-					"name": "Trace Event List"
-				},
-				{
-					"type": "tree",
 					"id": "trace-navigation",
 					"name": "Trace Navigation"
 				},
@@ -40,6 +35,11 @@
 					"type": "tree",
 					"id": "trace-policyList",
 					"name": "Trace Policy List"
+				},
+				{
+					"type": "tree",
+					"id": "trace-transactionList",
+					"name": "Trace Transaction List"
 				},
 				{
 					"type": "tree",
@@ -82,17 +82,17 @@
 				{
 					"command": "tracetool.nextOccurance",
 					"group": "inline@1",
-					"when": "view == trace-navigation || view == trace-policyList || view == trace-eventList"
+					"when": "view == trace-navigation || view == trace-policyList || view == trace-transactionList"
 				},
 				{
 					"command": "tracetool.previousOccurance",
 					"group": "inline",
-					"when": "view == trace-navigation || view == trace-policyList || view == trace-eventList"
+					"when": "view == trace-navigation || view == trace-policyList || view == trace-transactionList"
 				},
 				{
 					"command": "tracetool.eventOccurance",
 					"group": "inline",
-					"when": "view == trace-navigation || view == trace-policyList || view == trace-eventList"
+					"when": "view == trace-navigation || view == trace-policyList || view == trace-transactionList"
 				}
 			]
 		}

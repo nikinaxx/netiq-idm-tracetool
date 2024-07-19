@@ -1,6 +1,6 @@
 import { ExtensionContext, window, commands } from 'vscode';
 import { FindWebviewViewProvider } from './traceFind';
-import { EventListTreeDataProvider } from './traceEventList';
+import { TransactionListTreeDataProvider } from './traceTransactionList';
 import { NavigationTreeDataProvider } from './traceNavigation';
 import { PolicyListTreeDataProvider } from './tracePolicyList';
 import { BookmarksTreeDataProvider } from './traceBookmarks';
@@ -11,20 +11,20 @@ export function activate(context: ExtensionContext) {
 
 	// View providers
 	//const fwvp = new FindWebviewViewProvider(context.extensionUri);
-	const eltvp = new EventListTreeDataProvider();
 	const ntvp = new NavigationTreeDataProvider();
 	const pltvp = new PolicyListTreeDataProvider();
+	const tltvp = new TransactionListTreeDataProvider();
 	const btvp = new BookmarksTreeDataProvider();
 	const swvp = new StatsWebviewViewProvider(context.extensionUri);
 
 	//const rfwvp =	window.registerWebviewViewProvider('trace-find', fwvp);
-	const reltvp =	window.registerTreeDataProvider('trace-eventList', eltvp);
 	const rntvp = window.registerTreeDataProvider('trace-navigation', ntvp);
 	const rpltvp = window.registerTreeDataProvider('trace-policyList', pltvp);
+	const rtltvp =	window.registerTreeDataProvider('trace-transactionList', tltvp);
 	const rbtvp = window.registerTreeDataProvider('trace-bookmarks', btvp);
 	const rswvp =	window.registerWebviewViewProvider('trace-stats', swvp);
 
-	context.subscriptions.push(reltvp, rntvp, rpltvp, rbtvp, rswvp);
+	context.subscriptions.push(rtltvp, rntvp, rpltvp, rbtvp, rswvp);
 
 	// Commands
 	const abc = commands.registerCommand('tracetool.addBookmark', showInputBox);
