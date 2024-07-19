@@ -97,9 +97,8 @@ export function goToTransactionCommand(item: TracetoolTreeItem) {
     
     const startPosition = activeEditor.document.positionAt(item.event.startIndex);
     const startLineText = activeEditor.document.lineAt(startPosition.line).text;
-    const endPosition = activeEditor.document.positionAt(item.event.startIndex + startLineText.length);
-    activeEditor.selection = new Selection(startPosition, endPosition);
-    activeEditor.revealRange(new Range(startPosition, endPosition), TextEditorRevealType.AtTop);
+
+    revealPosition(item.event.startIndex, startLineText.length);
 }
 
 export function currentEventOccuranceCommand(item: TracetoolTreeItem) {
@@ -122,7 +121,8 @@ export function currentEventOccuranceCommand(item: TracetoolTreeItem) {
         return;
     }
     match.index += currentEvent.startIndex;
-    goToOccurance(match);
+
+    revealPosition(match.index, match[0].length);
 }
 
 export function previousOccuranceCommand(item: TracetoolTreeItem) {
@@ -136,7 +136,9 @@ export function previousOccuranceCommand(item: TracetoolTreeItem) {
 
     const text = activeEditor.document.getText();
     const match = rf.getPrevOccurance(text, tracetoolManager.currentPosition, item.searchRegex);
-    goToOccurance(match);
+    if (!match || !match.index) {return;}
+
+    revealPosition(match.index, match[0].length);
 }
 
 export function nextOccuranceCommand(item: TracetoolTreeItem) {
@@ -150,24 +152,25 @@ export function nextOccuranceCommand(item: TracetoolTreeItem) {
 
     const text = activeEditor.document.getText();
     const match = rf.getNextOccurance(text, tracetoolManager.currentPosition, item.searchRegex);
-    goToOccurance(match);
+    if (!match || !match.index) {return;}
+
+    revealPosition(match.index, match[0].length);
 }
 
-function goToOccurance(match: RegExpMatchArray|null) {
-    if (!match || !match.index) {return;}
+function revealPosition(index: number, selectionLength: number) {
     const activeEditor = window.activeTextEditor;
     if (!activeEditor) {return;}
 	const tracetoolManager = TracetoolManager.instance;
 
-    const startPosition = activeEditor.document.positionAt(match.index);
-    const endPosition = activeEditor.document.positionAt(match.index + match[0].length);
+    const startPosition = activeEditor.document.positionAt(index);
+    const endPosition = activeEditor.document.positionAt(index + selectionLength);
 
     // Select the match in the editor
     activeEditor.selection = new Selection(startPosition, endPosition);
     activeEditor.revealRange(new Range(startPosition, endPosition), TextEditorRevealType.InCenter);
 
     // Update the current position to start the next search from here
-    tracetoolManager.currentPosition = match.index + match[0].length - 1; // -1 because same text will be matched if you change direction and you had to click twice
+    tracetoolManager.currentPosition = index + selectionLength - 1; // -1 because same text will be matched if you change direction and you had to click twice
 }
 
 export function getLineStartIndex(index: number) {
