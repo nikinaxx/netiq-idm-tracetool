@@ -1,0 +1,16 @@
+#statContainer {
+    padding-top: 5px;
+    padding-left: 15px;
+}
+
+.statGroup {
+    margin-bottom: 10px;
+}
+
+.statRow {
+    display: flex;
+}
+
+.statRow p {
+    margin-left: 5px;
+}

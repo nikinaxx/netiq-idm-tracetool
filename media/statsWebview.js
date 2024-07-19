@@ -4,28 +4,42 @@
 // It cannot access the main VS Code APIs directly.
 (function () {
 
-    function setTraceStart(date) {
-        const text = document.getElementById('traceStartDate');
-        if (text) {
-            text.innerText = "Trace start: " + date; //Dangerous for injection
+    function setTraceTiming(start, end) {
+        const traceStartDate = document.getElementById('traceStartDate');
+        if (traceStartDate) {
+            traceStartDate.innerText = start;
+        }
+        const traceEndDate = document.getElementById('traceEndDate');
+        if (traceEndDate) {
+            traceEndDate.innerText = end;
         }
     }
-    function setTraceEnd(date) {
-        const text = document.getElementById('traceEndDate');
-        if (text) {
-            text.innerText = "Trace end: " + date; //Dangerous for injection
+    function setTotalErrors(countWarn, countError, countFatal) {
+        const traceTotalWarn = document.getElementById('traceTotalWarn');
+        if (traceTotalWarn) {
+            traceTotalWarn.innerText = countWarn;
+        }
+        const traceTotalErrors = document.getElementById('traceTotalErrors');
+        if (traceTotalErrors) {
+            traceTotalErrors.innerText = countError;
+        }
+        const traceTotalFatal = document.getElementById('traceTotalFatal');
+        if (traceTotalFatal) {
+            traceTotalFatal.innerText = countFatal;
         }
     }
-    function setTotalErrors(count) {
-        const text = document.getElementById('traceTotalErrors');
-        if (text) {
-            text.innerText = "Total errors: " + count; //Dangerous for injection
+    function setTransactionErrors(countWarn, countError, countFatal) {
+        const traceTransactionWarn = document.getElementById('traceTransactionWarn');
+        if (traceTransactionWarn) {
+            traceTransactionWarn.innerText = countWarn;
         }
-    }
-    function setTransactionErrors(count) {
-        const text = document.getElementById('traceTransactionErrors');
-        if (text) {
-            text.innerText = "Current transaction errors: " + count; //Dangerous for injection
+        const traceTransactionErrors = document.getElementById('traceTransactionErrors');
+        if (traceTransactionErrors) {
+            traceTransactionErrors.innerText = countError;
+        }
+        const traceTransactionFatal = document.getElementById('traceTransactionFatal');
+        if (traceTransactionFatal) {
+            traceTransactionFatal.innerText = countFatal;
         }
     }
 
@@ -34,15 +48,14 @@
 
         switch (message.command) {
             case 'refreshTraceStats':
-                setTraceStart(message.startDate);
-                setTraceEnd(message.endDate);
+                setTraceTiming(message.startDate, message.endDate);
                 break;
             case 'refreshTotalErrorsStats':
-                setTotalErrors(message.count);
+                setTotalErrors(message.countWarn, message.countError, message.countFatal);
                 break;
             case 'refreshTransactionErrorsStats':
-                setTransactionErrors(message.count);
-                break;
+                setTransactionErrors(message.countWarn, message.countError, message.countFatal);
+            break;
         }
     });
 

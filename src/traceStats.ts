@@ -82,9 +82,11 @@ export class StatsWebviewViewProvider implements vscode.WebviewViewProvider {
 		if (!this._view) { return; }
 
 		const text = editor.document.getText();
+		const warnCount = rf.countMatches(text, "warn");
 		const errorCount = rf.countMatches(text, "error");
+		const fatalount = rf.countMatches(text, "fatal");
 
-		this._view.webview.postMessage({ command: 'refreshTotalErrorsStats', count: errorCount });
+		this._view.webview.postMessage({ command: 'refreshTotalErrorsStats', countWarn: warnCount, countError: errorCount, countFatal: fatalount });
 	}
 
 	private refreshTransactionErrorsStats() {
@@ -92,16 +94,23 @@ export class StatsWebviewViewProvider implements vscode.WebviewViewProvider {
         if (!activeEditor) { return; }
 		if (!this._view) { return; }
 		
+		let warnCount: number|string = 0;
 		let errorCount: number|string = 0;
+		let fatalount: number|string = 0;
 		
 		const tracetoolManager = TracetoolManager.instance;
 		if (tracetoolManager.currentEvent) {
+			warnCount = rf.countMatches(tracetoolManager.currentEvent.text, "warn");
 			errorCount = rf.countMatches(tracetoolManager.currentEvent.text, "error");
+			fatalount = rf.countMatches(tracetoolManager.currentEvent.text, "fatal");
 		} else {
+			warnCount = "No transaction";
 			errorCount = "No transaction";
+			fatalount = "No transaction";
 		}
 
-		this._view.webview.postMessage({ command: 'refreshTransactionErrorsStats', count: errorCount });
+		this._view.webview.postMessage({ command: 'refreshTransactionErrorsStats', countWarn: warnCount, countError: errorCount, countFatal: fatalount });
+
 	}
 
 	private _getHtmlForWebview(webview: vscode.Webview) {
@@ -132,11 +141,49 @@ export class StatsWebviewViewProvider implements vscode.WebviewViewProvider {
 				</script>
 			</head>
 			<body>
-				<div>
-					<p id="traceStartDate">Trace start: </p>
-					<p id="traceEndDate">Trace end: </p>
-					<p id="traceTotalErrors">Total errors: </p>
-					<p id="traceTransactionErrors">Current transaction errors: </p>
+				<div id="statContainer">
+					<div class="statGroup">
+						<div class="statRow">
+							<p>Trace start:</p>
+							<p id="traceStartDate"></p>
+						</div>
+						<div class="statRow">
+							<p>Trace end:</p>
+							<p id="traceEndDate"></p>
+						</div>
+					</div>
+
+					<div class="statGroup">
+						<p>Whole document</p>
+						<div class="statRow">
+							<p>warn:</p>
+							<p id="traceTotalWarn"></p>
+						</div>
+						<div class="statRow">
+							<p>error:</p>
+							<p id="traceTotalErrors"></p>
+						</div>
+						<div class="statRow">
+							<p>fatal:</p>
+							<p id="traceTotalFatal"></p>
+						</div>
+					</div>
+
+					<div class="statGroup">
+						<p>Transaction</p>
+						<div class="statRow">
+							<p>warn:</p>
+							<p id="traceTransactionWarn"></p>
+						</div>
+						<div class="statRow">
+							<p>error:</p>
+							<p id="traceTransactionErrors"></p>
+						</div>
+						<div class="statRow">
+							<p>fatal:</p>
+							<p id="traceTransactionFatal"></p>
+						</div>
+					</div>
 				</div>
             </body>
             <script src="${scriptUri}" nonce="${nonce}"></script>
