@@ -1,14 +1,10 @@
-import {window, TreeDataProvider, TreeItem, TreeItemCollapsibleState, TextEditorRevealType, Range, Selection} from 'vscode';
-import * as rf from './regexFunctions';
+import { TreeDataProvider, TreeItem, TreeItemCollapsibleState } from 'vscode';
 
 export class NavigationTreeDataProvider implements TreeDataProvider<NavigationItem> {
     
-    private _currentPosition: number;
     private items: NavigationItem[];
 
     constructor() {
-        this._currentPosition = 0;
-
         this.items = [
             new NavigationItem('Transaction', 'Start transaction'),
             new NavigationItem('Policy', 'Applying policy'),
@@ -27,38 +23,6 @@ export class NavigationTreeDataProvider implements TreeDataProvider<NavigationIt
         } else {
             return Promise.resolve(this.items);
         }
-    }
-
-    public previousOccuranceCommand(item: NavigationItem) {
-        if (!item.searchRegex) {return;}
-        this.goToOccurance(item.searchRegex, rf.getPrevOccurance);
-        console.log(this._currentPosition);
-    }
-    
-    public nextOccuranceCommand(item: NavigationItem) {
-        if (!item.searchRegex) {return;}
-        this.goToOccurance(item.searchRegex, rf.getNextOccurance);
-        console.log(this._currentPosition);
-    }
-
-    private goToOccurance(searchTerm: string, matchFunction: (text: string, currentIndex: number, regexStr: string)=>RegExpExecArray|null) {
-        const activeEditor = window.activeTextEditor;
-        if (!activeEditor) {return;} 
-    
-        const text = activeEditor.document.getText();
-
-        const match = matchFunction(text, this._currentPosition, searchTerm);
-        if (!match) { return; }
-
-        const startPosition = activeEditor.document.positionAt(match.index);
-        const endPosition = activeEditor.document.positionAt(match.index + match[0].length);
-
-        // Select the match in the editor
-        activeEditor.selection = new Selection(startPosition, endPosition);
-        activeEditor.revealRange(new Range(startPosition, endPosition), TextEditorRevealType.InCenter);
-
-        // Update the current position to start the next search from here
-        this._currentPosition = match.index + match[0].length - 1; // -1 because same text will be matched if you change direction and you had to click twice
     }
 
 }

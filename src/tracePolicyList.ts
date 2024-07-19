@@ -3,12 +3,9 @@ import * as rf from './regexFunctions';
 
 export class PolicyListTreeDataProvider implements TreeDataProvider<PolicyListItem> {
     
-    private _currentPosition: number;
     private items: PolicyListItem[];
 
     constructor() {
-        this._currentPosition = 0;
-
         this.items = [];
     }
 
@@ -38,13 +35,6 @@ export class PolicyListTreeDataProvider implements TreeDataProvider<PolicyListIt
         });
 
         this.items = items;
-    }
-
-    public previousOccuranceCommand(item: PolicyListItem) {
-        if (!item.searchRegex) {return;}
-    }
-    public nextOccuranceCommand(item: PolicyListItem) {
-        if (!item.searchRegex) {return;}
     }
 }
 

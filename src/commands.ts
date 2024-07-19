@@ -1,4 +1,8 @@
-import { window, Position, Range, Uri, OverviewRulerLane, ThemeColor, TextEditorDecorationType, DecorationRenderOptions } from 'vscode';
+import { window, Position, Range, Uri, OverviewRulerLane, ThemeColor, TextEditorDecorationType, DecorationRenderOptions, TextEditorRevealType, Selection } from 'vscode';
+import * as rf from './regexFunctions';
+import { NavigationItem } from './traceNavigation';
+import { PolicyListItem } from './tracePolicyList';
+import { TracetoolManager } from './tracetoolManager';
 
 function createGutterRulerDecoration(
     overviewRulerLane?: OverviewRulerLane,
@@ -82,4 +86,35 @@ export async function showInputBox() {
 
 	const decoration = { range: new Range(position, position) };
 	activeEditor.setDecorations(decorator.gutterDecoration, [decoration]);
+}
+
+export function previousOccuranceCommand(item: NavigationItem|PolicyListItem) {
+    if (!item.searchRegex) {return;}
+    goToOccurance(item.searchRegex, rf.getPrevOccurance);
+}
+
+export function nextOccuranceCommand(item: NavigationItem|PolicyListItem) {
+    if (!item.searchRegex) {return;}
+    goToOccurance(item.searchRegex, rf.getNextOccurance);
+}
+
+function goToOccurance(searchTerm: string, matchFunction: (text: string, currentIndex: number, regexStr: string)=>RegExpExecArray|null) {
+    const activeEditor = window.activeTextEditor;
+    if (!activeEditor) {return;}
+	const tracetoolManager = TracetoolManager.instance;
+
+    const text = activeEditor.document.getText();
+
+    const match = matchFunction(text, tracetoolManager.currentPosition, searchTerm);
+    if (!match) { return; }
+
+    const startPosition = activeEditor.document.positionAt(match.index);
+    const endPosition = activeEditor.document.positionAt(match.index + match[0].length);
+
+    // Select the match in the editor
+    activeEditor.selection = new Selection(startPosition, endPosition);
+    activeEditor.revealRange(new Range(startPosition, endPosition), TextEditorRevealType.InCenter);
+
+    // Update the current position to start the next search from here
+    tracetoolManager.currentPosition = match.index + match[0].length - 1; // -1 because same text will be matched if you change direction and you had to click twice
 }

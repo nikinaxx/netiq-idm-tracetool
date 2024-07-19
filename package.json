@@ -27,9 +27,9 @@
 		"views": {
 			"tracetool-sidebar-view": [
 				{
-					"type": "webview",
-					"id": "trace-find",
-					"name": "Trace Find"
+					"type": "tree",
+					"id": "trace-eventList",
+					"name": "Trace Event List"
 				},
 				{
 					"type": "tree",
