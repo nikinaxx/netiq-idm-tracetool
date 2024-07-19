@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as rf from './regexFunctions';
 import { TracetoolManager } from './tracetoolManager';
+import { formatTimestamp } from './commands';
 
 
 export class StatsWebviewViewProvider implements vscode.WebviewViewProvider {
@@ -60,11 +61,14 @@ export class StatsWebviewViewProvider implements vscode.WebviewViewProvider {
 		if (!this._view) { return; }
 
 		const text = editor.document.getText();
-		const matches = rf.findAllMatches(text, "\\[(.*)\\]:"); // double slash escape regex in js
+		const matches = rf.matchTraceTimestamps(text);
 
 		if (matches.length > 0) {
-			const firstMatch = matches[0][1]; //match 0, regex capturing group 1
-			const lastMatch = matches[matches.length - 1][1]; //match last, regex capturing group 1
+			let firstMatch = matches[0][1]; //match 0, regex capturing group 1
+			let lastMatch = matches[matches.length - 1][1]; //match last, regex capturing group 1
+
+			firstMatch = formatTimestamp(firstMatch);
+			lastMatch = formatTimestamp(lastMatch);
 		
 			this._view.webview.postMessage({ command: 'refreshTraceStats', startDate: firstMatch, endDate: lastMatch });
 		} else {
@@ -88,11 +92,13 @@ export class StatsWebviewViewProvider implements vscode.WebviewViewProvider {
         if (!activeEditor) { return; }
 		if (!this._view) { return; }
 		
-		let errorCount = 0;
+		let errorCount: number|string = 0;
 		
 		const tracetoolManager = TracetoolManager.instance;
 		if (tracetoolManager.currentEvent) {
 			errorCount = rf.countMatches(tracetoolManager.currentEvent.text, "error");
+		} else {
+			errorCount = "No transaction";
 		}
 
 		this._view.webview.postMessage({ command: 'refreshTransactionErrorsStats', count: errorCount });

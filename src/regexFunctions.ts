@@ -54,3 +54,7 @@ export function getIndexOfNextOccurance(text: string, currentIndex: number, rege
     const match = getNextOccurance(text, currentIndex, regexStr);
     return match ? match.index : null;
 }
+
+export function matchTraceTimestamps(text: string) {
+    return findAllMatches(text, "\\[(.*)\\]:");
+}

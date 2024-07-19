@@ -153,3 +153,39 @@ function goToOccurance(match: RegExpMatchArray|null) {
     // Update the current position to start the next search from here
     tracetoolManager.currentPosition = match.index + match[0].length - 1; // -1 because same text will be matched if you change direction and you had to click twice
 }
+
+export function getLineStartIndex(index: number) {
+    const activeEditor = window.activeTextEditor;
+    if (!activeEditor) {return;} 
+    const position = activeEditor.document.positionAt(index);
+    const lineStartPosition = new Position(position.line, 0);
+    return activeEditor.document.offsetAt(lineStartPosition);
+}
+
+export function getLineEndIndex(index: number) {
+    const activeEditor = window.activeTextEditor;
+    if (!activeEditor) {return;} 
+    const position = activeEditor.document.positionAt(index);
+    const lineStartPosition = new Position(position.line, 0);
+    const lineText = activeEditor.document.lineAt(position.line).text;
+    const lineStartIndex = activeEditor.document.offsetAt(lineStartPosition);
+    return lineStartIndex + lineText.length;
+}
+
+export function formatTimestamp(timestamp: string): string {
+    // Split the date and time components
+    const [datePart, timePart] = timestamp.split(' ');
+
+    // Parse the date part in MM/DD/YY format
+    const [month, day, year] = datePart.split('/').map(Number);
+
+    // Format the date part as DD.MM.
+    const formattedDate = `${day}.${month}.`;
+
+    // Format the time part as HH:MM
+    const [hours, minutes] = timePart.split(':');
+    const formattedTime = `${hours}:${minutes}`;
+
+    // Combine date and time
+    return `${formattedDate} ${formattedTime}`;
+}

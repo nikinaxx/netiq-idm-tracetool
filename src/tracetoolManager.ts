@@ -1,5 +1,8 @@
 import { TreeItem, TreeItemCollapsibleState, window } from 'vscode';
 import * as rf from './regexFunctions';
+import { DOMParser } from 'xmldom';
+import * as xpath from 'xpath';
+import { getLineStartIndex, getLineEndIndex} from './commands';
 
 export class TracetoolManager
 {
@@ -48,7 +51,7 @@ export class TracetoolManager
         if (!activeEditor) {return [];} 
 
         const text = activeEditor.document.getText();
-        const allEventEdges = rf.findAllMatches(text, "Start transaction\|End transaction");
+        const allEventEdges = rf.findAllMatches(text, "Start transaction\|End transaction\|Discarding transaction");
 
         return this.calculateEventsFromEdges(allEventEdges);
     }
@@ -58,8 +61,10 @@ export class TracetoolManager
         let currentOpenEvents: Event[] = [];
         for (let i = 0; i < allEventEdges.length; i++) {
             const currentEdge = allEventEdges[i];
+            if(!currentEdge.index){continue;}
             if (currentEdge[0] === 'Start transaction') {
-                const event = new Event(currentEdge.index, undefined);
+                const lineStartIndex = getLineStartIndex(currentEdge.index);
+                const event = new Event(lineStartIndex, undefined);
                 if (currentOpenEvents.length > 0) {
                     currentOpenEvents[currentOpenEvents.length-1].children.push(event);
                 } else {
@@ -67,13 +72,14 @@ export class TracetoolManager
                 }
                 currentOpenEvents.push(event);
             }
-            if (currentEdge[0] === 'End transaction') {
+            if (currentEdge[0] === 'End transaction' || currentEdge[0] === 'Discarding transaction') {
+                const lineEndIndex = getLineEndIndex(currentEdge.index);
                 if (currentOpenEvents.length > 0) {
                     const currentOpenEvent = currentOpenEvents[currentOpenEvents.length-1];
-                    currentOpenEvent.endIndex = currentEdge.index;
+                    currentOpenEvent.endIndex = lineEndIndex;
                     currentOpenEvents.pop();
                 } else {
-                    const event = new Event(undefined, currentEdge.index);
+                    const event = new Event(undefined, lineEndIndex);
                     events.push(event);
                 }
             }
@@ -103,7 +109,10 @@ export class Event {
     public endIndex: number|undefined = undefined;
     public children: Event[] = [];
     private _text: string = "";
+    private _eventXML: Document|undefined = undefined;
     private _types: string[] = [];
+    private _startTimestamp: string|undefined = undefined;
+    private _endTimestamp: string|undefined = undefined;
 
     constructor (startIndex?: number, endIndex?: number) {
         this.startIndex = startIndex;
@@ -114,9 +123,29 @@ export class Event {
         this._text = this.extractTextFromDocument();
         return this._text;
     }
+    public get eventXML() {
+        this._eventXML = this.extractEventXMLFromEventText();
+        return this._eventXML;
+    }
     public get types() {
-        this._types = this.extractTypesFromEventText();
+        this._types = this.extractEventTypesFromEventXML();
         return this._types;
+    }
+    public get startTimestamp() {
+        const timestampMatches = rf.matchTraceTimestamps(this.text);
+        if (timestampMatches.length === 0) {
+            return "xx/xx/xx xx:xx:xx.xxx";
+        }
+        this._startTimestamp = timestampMatches[0][1]; // first match group 1 (timestamp without brackets)
+        return this._startTimestamp;
+    }
+    public get endTimestamp() {
+        const timestampMatches = rf.matchTraceTimestamps(this.text);
+        if (timestampMatches.length === 0) {
+            return "xx/xx/xx xx:xx:xx.xxx";
+        }
+        this._endTimestamp = timestampMatches[timestampMatches.length-1][1]; // last match group 1 (timestamp without brackets)
+        return this._endTimestamp;
     }
 
     private extractTextFromDocument() {
@@ -127,7 +156,7 @@ export class Event {
         const activeEditor = window.activeTextEditor;
         if (!activeEditor) {
             return "";
-        } 
+        }
 
         const text = activeEditor.document.getText();
         const eventText = text.substring(this.startIndex, this.endIndex);
@@ -135,12 +164,40 @@ export class Event {
         return eventText || "";
     }
 
-    private extractTypesFromEventText() {
+    private extractEventXMLFromEventText() {
         if (this.text === "") {
+            return undefined;
+        }
+
+        // Find first <nds></nds>
+        const match = rf.getFirstOccurance(this.text, "<nds.+>(.|\\n)+?</nds>");
+        if (!match || !match[0]) {
+            return undefined;
+        }
+
+        // Parse xml text to xml document
+        const ndsDocument = new DOMParser().parseFromString(match[0], 'text/xml');
+
+        return ndsDocument;
+    }
+
+    private extractEventTypesFromEventXML() {
+        if (!this.eventXML) {
             return [];
         }
 
-        return ["add"];
+        // Extract all event types
+        const eventTypes = xpath.select('/nds/input/*', this.eventXML) as Node[];
+        if (!eventTypes) {
+            return [];
+        }
+
+        let typeList: string[] = [];
+        eventTypes.forEach((eventType: any) => {
+            typeList.push("<"+eventType.nodeName+">");
+        });
+
+        return typeList;
     }
 }
 

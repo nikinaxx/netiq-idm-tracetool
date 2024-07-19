@@ -1,5 +1,6 @@
 import { TreeDataProvider, TreeItem} from 'vscode';
 import { TracetoolManager, TracetoolTreeItem } from './tracetoolManager';
+import { formatTimestamp as formatTimestamp } from './commands';
 
 export class EventListTreeDataProvider implements TreeDataProvider<TracetoolTreeItem> {
 
@@ -18,7 +19,9 @@ export class EventListTreeDataProvider implements TreeDataProvider<TracetoolTree
         
         let eventListItem: TracetoolTreeItem[] = [];
         eventList.forEach(event => {
-            eventListItem.push(new TracetoolTreeItem("Transaction "+event.types[0], "regex", event));
+            const formattedTimestamp = formatTimestamp(event.startTimestamp);
+            const label = formattedTimestamp + " " + event.types.join(' ');
+            eventListItem.push(new TracetoolTreeItem(label, "regex", event));
         });
         return Promise.resolve(eventListItem);
     }
