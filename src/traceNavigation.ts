@@ -10,7 +10,8 @@ export class NavigationTreeDataProvider implements TreeDataProvider<TracetoolTre
             new TracetoolTreeItem('Transaction', 'Start transaction'),
             new TracetoolTreeItem('Policy', 'Applying policy'),
             new TracetoolTreeItem('Rule', 'Applying rule'),
-            new TracetoolTreeItem('Query result', 'from policy result\\\\|Read result') // escape regex by \\ and escape that to use in string by \\
+            new TracetoolTreeItem('Query result', 'from policy result\\\\|Read result'), // escape regex by \\ and escape that to use in string by \\
+            new TracetoolTreeItem('Subscriber result', 'Submitting document to subscriber shim')
         ];
     }
 
