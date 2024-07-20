@@ -42,7 +42,7 @@ export function getPolicyListChildren(element?: TracetoolTreeItem): Thenable<Tra
 export function getTransactionListChildren(element?: TracetoolTreeItem): Thenable<TracetoolTreeItem[]> {
     const tracetoolManager = TracetoolManager.instance;
     
-    const eventList = element && element.event ? element.event.children : tracetoolManager.events;
+    const eventList = element && element.event ? element.event.children : tracetoolManager.allTransactions;
     
     let eventListItem: TracetoolTreeItem[] = [];
     eventList.forEach(event => {

@@ -133,7 +133,7 @@ export function currentEventOccuranceCommand(item: TracetoolTreeItem) {
     const activeEditor = window.activeTextEditor;
     if (!activeEditor) {return;}
     const tracetoolManager = TracetoolManager.instance;
-    const currentEvent = tracetoolManager.currentEvent;
+    const currentEvent = tracetoolManager.currentTransaction;
     if (!currentEvent || ! currentEvent.startIndex) {
 		window.showErrorMessage('No current event');
         return;

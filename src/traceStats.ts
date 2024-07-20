@@ -99,10 +99,10 @@ export class StatsWebviewViewProvider implements vscode.WebviewViewProvider {
 		let fatalount: number|string = 0;
 		
 		const tracetoolManager = TracetoolManager.instance;
-		if (tracetoolManager.currentEvent) {
-			warnCount = rf.countMatches(tracetoolManager.currentEvent.text, "warn");
-			errorCount = rf.countMatches(tracetoolManager.currentEvent.text, "error");
-			fatalount = rf.countMatches(tracetoolManager.currentEvent.text, "fatal");
+		if (tracetoolManager.currentTransaction) {
+			warnCount = rf.countMatches(tracetoolManager.currentTransaction.text, "warn");
+			errorCount = rf.countMatches(tracetoolManager.currentTransaction.text, "error");
+			fatalount = rf.countMatches(tracetoolManager.currentTransaction.text, "fatal");
 		} else {
 			warnCount = "No transaction";
 			errorCount = "No transaction";

@@ -9,13 +9,13 @@ export class TracetoolManager
     private static _instance: TracetoolManager;
 
     private _currentPosition: number;
-    private _events: Transaction[];
-    private _currentEvent: Transaction|undefined;
+    private _allTransactions: Transaction[];
+    private _currentTransaction: Transaction|undefined;
 
     private constructor()
     {
         this._currentPosition = 0;
-        this._events = [];
+        this._allTransactions = [];
     }
 
     public static get instance() {
@@ -32,21 +32,20 @@ export class TracetoolManager
         this._currentPosition = value;
     }
 
-    public get events() {
-        this._events = this.getAllEvents();
-        return this._events;
+    public get allTransactions() {
+        this._allTransactions = this.getAllTransactions();
+        return this._allTransactions;
     }
-    public set events(value: Transaction[]) {
-        this._events = value;
-    }
-
-    public get currentEvent() {
-        this._events = this.getAllEvents();
-        this._currentEvent = this.getCurrentEvent();
-        return this._currentEvent;
+    public set allTransactions(value: Transaction[]) {
+        this._allTransactions = value;
     }
 
-    private getAllEvents() {
+    public get currentTransaction() {
+        this._currentTransaction = this.getCurrentTransaction();
+        return this._currentTransaction;
+    }
+
+    private getAllTransactions() {
         const activeEditor = window.activeTextEditor;
         if (!activeEditor) {return [];} 
 
@@ -87,12 +86,12 @@ export class TracetoolManager
         return events;
     }
 
-    private getCurrentEvent() {
+    private getCurrentTransaction() {
         const activeEditor = window.activeTextEditor;
         if (!activeEditor) {
             return undefined;
         }
-        let currentEventsList = this.events.filter(e => 
+        let currentEventsList = this.allTransactions.filter(e => 
             e.startIndex && 
             e.endIndex && 
             e.startIndex < this.currentPosition && this.currentPosition < e.endIndex
