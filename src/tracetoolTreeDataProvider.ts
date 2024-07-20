@@ -1,5 +1,5 @@
 import { TreeDataProvider, TreeItem, TreeItemCollapsibleState, window } from 'vscode';
-import { TracetoolManager, Event } from './tracetoolManager';
+import { TracetoolManager, Transaction } from './tracetoolManager';
 import { formatTimestamp as formatTimestamp } from './commands';
 import * as rf from './regexFunctions';
 
@@ -47,7 +47,7 @@ export function getTransactionListChildren(element?: TracetoolTreeItem): Thenabl
     let eventListItem: TracetoolTreeItem[] = [];
     eventList.forEach(event => {
         const formattedTimestamp = formatTimestamp(event.startTimestamp);
-        const description = event.types.join(' ');
+        const description = event.eventTypes.join(' ');
         eventListItem.push(new TracetoolTreeItem(formattedTimestamp, event.startTimestamp, event, description));
     });
     return Promise.resolve(eventListItem);
@@ -87,9 +87,9 @@ export class TracetoolTreeDataProvider implements TreeDataProvider<TracetoolTree
 
 export class TracetoolTreeItem extends TreeItem {
     public searchRegex: string;
-    public event: Event|undefined;
+    public event: Transaction|undefined;
 
-    constructor(public readonly labelText: string, searchRegex: string, event?: Event, descriptionText?: string) {
+    constructor(public readonly labelText: string, searchRegex: string, event?: Transaction, descriptionText?: string) {
         super(labelText, event && event.children && event.children.length > 0 ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.None);
         this.contextValue = 'tracetool-tree-item'; // Used for "when" condition in package.json
         this.command = undefined; // Make item non-clickable

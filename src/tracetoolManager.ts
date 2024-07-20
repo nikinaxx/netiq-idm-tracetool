@@ -9,8 +9,8 @@ export class TracetoolManager
     private static _instance: TracetoolManager;
 
     private _currentPosition: number;
-    private _events: Event[];
-    private _currentEvent: Event|undefined;
+    private _events: Transaction[];
+    private _currentEvent: Transaction|undefined;
 
     private constructor()
     {
@@ -36,7 +36,7 @@ export class TracetoolManager
         this._events = this.getAllEvents();
         return this._events;
     }
-    public set events(value: Event[]) {
+    public set events(value: Transaction[]) {
         this._events = value;
     }
 
@@ -57,14 +57,14 @@ export class TracetoolManager
     }
 
     private calculateEventsFromEdges(allEventEdges: RegExpMatchArray[]) {
-        let events: Event[] = [];
-        let currentOpenEvents: Event[] = [];
+        let events: Transaction[] = [];
+        let currentOpenEvents: Transaction[] = [];
         for (let i = 0; i < allEventEdges.length; i++) {
             const currentEdge = allEventEdges[i];
             if(!currentEdge.index){continue;}
             if (currentEdge[0] === 'Start transaction') {
                 const lineStartIndex = getLineStartIndex(currentEdge.index);
-                const event = new Event(lineStartIndex, undefined);
+                const event = new Transaction(lineStartIndex, undefined);
                 if (currentOpenEvents.length > 0) {
                     currentOpenEvents[currentOpenEvents.length-1].children.push(event);
                 } else {
@@ -79,7 +79,7 @@ export class TracetoolManager
                     currentOpenEvent.endIndex = lineEndIndex;
                     currentOpenEvents.pop();
                 } else {
-                    const event = new Event(undefined, lineEndIndex);
+                    const event = new Transaction(undefined, lineEndIndex);
                     events.push(event);
                 }
             }
@@ -104,13 +104,13 @@ export class TracetoolManager
     }
 }
 
-export class Event {
+export class Transaction {
     public startIndex: number|undefined = undefined;
     public endIndex: number|undefined = undefined;
-    public children: Event[] = [];
+    public children: Transaction[] = [];
     private _text: string = "";
-    private _eventXML: Document|undefined = undefined;
-    private _types: string[] = [];
+    private _xml: Document|undefined = undefined;
+    private _eventTypes: string[] = [];
     private _startTimestamp: string|undefined = undefined;
     private _endTimestamp: string|undefined = undefined;
 
@@ -123,13 +123,13 @@ export class Event {
         this._text = this.extractTextFromDocument();
         return this._text;
     }
-    public get eventXML() {
-        this._eventXML = this.extractEventXMLFromEventText();
-        return this._eventXML;
+    public get xml() {
+        this._xml = this.extractXMLFromText();
+        return this._xml;
     }
-    public get types() {
-        this._types = this.extractEventTypesFromEventXML();
-        return this._types;
+    public get eventTypes() {
+        this._eventTypes = this.extractTypesFromXML();
+        return this._eventTypes;
     }
     public get startTimestamp() {
         const timestampMatches = rf.matchTraceTimestamps(this.text);
@@ -164,7 +164,7 @@ export class Event {
         return eventText || "";
     }
 
-    private extractEventXMLFromEventText() {
+    private extractXMLFromText() {
         if (this.text === "") {
             return undefined;
         }
@@ -181,13 +181,13 @@ export class Event {
         return ndsDocument;
     }
 
-    private extractEventTypesFromEventXML() {
-        if (!this.eventXML) {
+    private extractTypesFromXML() {
+        if (!this.xml) {
             return [];
         }
 
         // Extract all event types
-        const eventTypes = xpath.select('/nds/input/*', this.eventXML) as Node[];
+        const eventTypes = xpath.select('/nds/input/*', this.xml) as Node[];
         if (!eventTypes) {
             return [];
         }
