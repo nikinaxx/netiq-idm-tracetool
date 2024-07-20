@@ -50,40 +50,40 @@ export class TracetoolManager
         if (!activeEditor) {return [];} 
 
         const text = activeEditor.document.getText();
-        const allEventEdges = rf.findAllMatches(text, "Start transaction\|End transaction\|Discarding transaction");
+        const allTransactionEdges = rf.findAllMatches(text, "Start transaction\|End transaction\|Discarding transaction");
 
-        return this.calculateEventsFromEdges(allEventEdges);
+        return this.calculateTransactionsFromEdges(allTransactionEdges);
     }
 
-    private calculateEventsFromEdges(allEventEdges: RegExpMatchArray[]) {
-        let events: Transaction[] = [];
-        let currentOpenEvents: Transaction[] = [];
-        for (let i = 0; i < allEventEdges.length; i++) {
-            const currentEdge = allEventEdges[i];
+    private calculateTransactionsFromEdges(allTransactionEdges: RegExpMatchArray[]) {
+        let transactions: Transaction[] = [];
+        let currentOpenTransactions: Transaction[] = [];
+        for (let i = 0; i < allTransactionEdges.length; i++) {
+            const currentEdge = allTransactionEdges[i];
             if(!currentEdge.index){continue;}
             if (currentEdge[0] === 'Start transaction') {
                 const lineStartIndex = getLineStartIndex(currentEdge.index);
-                const event = new Transaction(lineStartIndex, undefined);
-                if (currentOpenEvents.length > 0) {
-                    currentOpenEvents[currentOpenEvents.length-1].children.push(event);
+                const transaction = new Transaction(lineStartIndex, undefined);
+                if (currentOpenTransactions.length > 0) {
+                    currentOpenTransactions[currentOpenTransactions.length-1].children.push(transaction);
                 } else {
-                    events.push(event);
+                    transactions.push(transaction);
                 }
-                currentOpenEvents.push(event);
+                currentOpenTransactions.push(transaction);
             }
             if (currentEdge[0] === 'End transaction' || currentEdge[0] === 'Discarding transaction') {
                 const lineEndIndex = getLineEndIndex(currentEdge.index);
-                if (currentOpenEvents.length > 0) {
-                    const currentOpenEvent = currentOpenEvents[currentOpenEvents.length-1];
-                    currentOpenEvent.endIndex = lineEndIndex;
-                    currentOpenEvents.pop();
+                if (currentOpenTransactions.length > 0) {
+                    const currentOpenTransaction = currentOpenTransactions[currentOpenTransactions.length-1];
+                    currentOpenTransaction.endIndex = lineEndIndex;
+                    currentOpenTransactions.pop();
                 } else {
-                    const event = new Transaction(undefined, lineEndIndex);
-                    events.push(event);
+                    const transaction = new Transaction(undefined, lineEndIndex);
+                    transactions.push(transaction);
                 }
             }
         }
-        return events;
+        return transactions;
     }
 
     private getCurrentTransaction() {
@@ -91,15 +91,15 @@ export class TracetoolManager
         if (!activeEditor) {
             return undefined;
         }
-        let currentEventsList = this.allTransactions.filter(e => 
+        let currentTransactionList = this.allTransactions.filter(e => 
             e.startIndex && 
             e.endIndex && 
             e.startIndex < this.currentPosition && this.currentPosition < e.endIndex
         );
-        if (currentEventsList.length === 0) {
+        if (currentTransactionList.length === 0) {
             return undefined;
         }
-        return currentEventsList[currentEventsList.length-1];
+        return currentTransactionList[currentTransactionList.length-1];
     }
 }
 

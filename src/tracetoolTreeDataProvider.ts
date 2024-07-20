@@ -42,15 +42,15 @@ export function getPolicyListChildren(element?: TracetoolTreeItem): Thenable<Tra
 export function getTransactionListChildren(element?: TracetoolTreeItem): Thenable<TracetoolTreeItem[]> {
     const tracetoolManager = TracetoolManager.instance;
     
-    const eventList = element && element.event ? element.event.children : tracetoolManager.allTransactions;
+    const transactionList = element && element.transaction ? element.transaction.children : tracetoolManager.allTransactions;
     
-    let eventListItem: TracetoolTreeItem[] = [];
-    eventList.forEach(event => {
-        const formattedTimestamp = formatTimestamp(event.startTimestamp);
-        const description = event.eventTypes.join(' ');
-        eventListItem.push(new TracetoolTreeItem(formattedTimestamp, event.startTimestamp, event, description));
+    let transactionListItem: TracetoolTreeItem[] = [];
+    transactionList.forEach(transaction => {
+        const formattedTimestamp = formatTimestamp(transaction.startTimestamp);
+        const description = transaction.eventTypes.join(' ');
+        transactionListItem.push(new TracetoolTreeItem(formattedTimestamp, transaction.startTimestamp, transaction, description));
     });
-    return Promise.resolve(eventListItem);
+    return Promise.resolve(transactionListItem);
 }
 
 export function getBookmarksChildren(element?: TracetoolTreeItem): Thenable<TracetoolTreeItem[]> {
@@ -87,14 +87,14 @@ export class TracetoolTreeDataProvider implements TreeDataProvider<TracetoolTree
 
 export class TracetoolTreeItem extends TreeItem {
     public searchRegex: string;
-    public event: Transaction|undefined;
+    public transaction: Transaction|undefined;
 
-    constructor(public readonly labelText: string, searchRegex: string, event?: Transaction, descriptionText?: string) {
-        super(labelText, event && event.children && event.children.length > 0 ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.None);
+    constructor(public readonly labelText: string, searchRegex: string, transaction?: Transaction, descriptionText?: string) {
+        super(labelText, transaction && transaction.children && transaction.children.length > 0 ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.None);
         this.contextValue = 'tracetool-tree-item'; // Used for "when" condition in package.json
         this.command = undefined; // Make item non-clickable
         this.searchRegex = searchRegex;
-        this.event = event;
+        this.transaction = transaction;
         this.description = descriptionText;
     }
 }
