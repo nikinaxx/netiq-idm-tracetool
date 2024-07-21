@@ -1,7 +1,6 @@
 import { Event, EventEmitter, TreeDataProvider, TreeItem, TreeItemCollapsibleState, window, workspace } from 'vscode';
 import { TracetoolManager, Transaction } from './tracetoolManager';
 import { formatTimestamp as formatTimestamp } from './commands';
-import * as rf from './regexFunctions';
 
 export class TracetoolTreeDataProvider implements TreeDataProvider<TracetoolTreeItem> {
 
@@ -14,9 +13,11 @@ export class TracetoolTreeDataProvider implements TreeDataProvider<TracetoolTree
     constructor(builderFunction: (element?: TracetoolTreeItem) => Thenable<TracetoolTreeItem[]>, refreshOnChanges: boolean = false) {
         this._builderFunction = builderFunction;
         this._refreshOnChanges = refreshOnChanges;
-        
+
         window.onDidChangeActiveTextEditor(() => this.refresh());
         workspace.onDidChangeTextDocument(() => this.refresh());
+        const tracetoolManager = TracetoolManager.instance;
+        tracetoolManager.onCurrentTransactionChanged(() => this.refresh());
     }
 
     getTreeItem(element: TracetoolTreeItem): TreeItem {
@@ -36,10 +37,10 @@ export class TracetoolTreeDataProvider implements TreeDataProvider<TracetoolTree
 }
 
 export class TracetoolTreeItem extends TreeItem {
-    public searchRegex: string;
+    public searchRegex: string|undefined;
     public transaction: Transaction|undefined;
 
-    constructor(public readonly labelText: string, searchRegex: string, transaction?: Transaction, descriptionText?: string) {
+    constructor(public readonly labelText: string, searchRegex?: string, transaction?: Transaction, descriptionText?: string) {
         super(labelText, transaction && transaction.children && transaction.children.length > 0 ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.None);
         this.contextValue = 'tracetool-tree-item'; // Used for "when" condition in package.json
         this.command = undefined; // Make item non-clickable
@@ -64,21 +65,25 @@ export function getTraceNavigationChildren(element?: TracetoolTreeItem): Thenabl
     }
 }
 
-export function getPolicyListChildren(element?: TracetoolTreeItem): Thenable<TracetoolTreeItem[]> {
+export function getTransactionPolicyListChildren(element?: TracetoolTreeItem): Thenable<TracetoolTreeItem[]> {
     if (element) {
         return Promise.resolve([]);
     } else {
         const activeEditor = window.activeTextEditor;
         if (!activeEditor) {
-            return Promise.resolve([]);
+            return Promise.resolve([new TracetoolTreeItem("No active editor")]);
         } 
-    
-        const text = activeEditor.document.getText();
-        const uniquePolicies = rf.uniqueMatches(text, "(?<=Applying policy:) %\\+C%14C(.*)%-C", 1);
+
+        const tracetoolManager = TracetoolManager.instance;
+        const currentTransaction = tracetoolManager.currentTransaction;
+        if (!currentTransaction || !currentTransaction.policies) { 
+            return Promise.resolve([new TracetoolTreeItem("No current transaction")]); 
+        }
 
         let policyItems: TracetoolTreeItem[] = [];
-        uniquePolicies.forEach(policyName => {
-            policyItems.push(new TracetoolTreeItem(policyName, policyName));
+        currentTransaction.policies.forEach(policyName => {
+            const policyRegexStr = "%\\+C%14C" + policyName + "%-C";
+            policyItems.push(new TracetoolTreeItem(policyName, policyRegexStr));
         });
 
         return Promise.resolve(policyItems);

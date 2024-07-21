@@ -33,13 +33,13 @@
 				},
 				{
 					"type": "tree",
-					"id": "trace-policyList",
-					"name": "Trace Policy List"
+					"id": "trace-transactionList",
+					"name": "Trace Transactions"
 				},
 				{
 					"type": "tree",
-					"id": "trace-transactionList",
-					"name": "Trace Transaction List"
+					"id": "transaction-policyList",
+					"name": "Current transaction Policies"
 				},
 				{
 					"type": "tree",
@@ -97,17 +97,17 @@
 				{
 					"command": "tracetool.nextOccurance",
 					"group": "inline@1",
-					"when": "view == trace-navigation || view == trace-policyList"
+					"when": "view == trace-navigation || view == transaction-policyList"
 				},
 				{
 					"command": "tracetool.previousOccurance",
 					"group": "inline",
-					"when": "view == trace-navigation || view == trace-policyList"
+					"when": "view == trace-navigation || view == transaction-policyList"
 				},
 				{
 					"command": "tracetool.transactionOccurance",
 					"group": "inline",
-					"when": "view == trace-policyList"
+					"when": "view == transaction-policyList"
 				},
 				{
 					"command": "tracetool.goToTransactionStart",

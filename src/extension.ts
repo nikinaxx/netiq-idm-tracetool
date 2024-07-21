@@ -1,22 +1,22 @@
 import { ExtensionContext, window, commands } from 'vscode';
 import { StatsWebviewViewProvider } from './traceStats';
 import { showInputBox, nextOccuranceCommand, previousOccuranceCommand, currentTransactionOccuranceCommand, goToTransactionStartCommand, goToTransactionEndCommand } from './commands';
-import { TracetoolTreeDataProvider, getBookmarksChildren, getPolicyListChildren, getTraceNavigationChildren, getTransactionListChildren } from './tracetoolTreeDataProvider';
+import { TracetoolTreeDataProvider, getBookmarksChildren, getTransactionPolicyListChildren, getTraceNavigationChildren, getTransactionListChildren } from './tracetoolTreeDataProvider';
 
 export function activate(context: ExtensionContext) {
 
 	// View providers
 	//const fwvp = new FindWebviewViewProvider(context.extensionUri);
 	const ntvp = new TracetoolTreeDataProvider(getTraceNavigationChildren);
-	const pltvp = new TracetoolTreeDataProvider(getPolicyListChildren, true);
 	const tltvp = new TracetoolTreeDataProvider(getTransactionListChildren, true);
+	const pltvp = new TracetoolTreeDataProvider(getTransactionPolicyListChildren, true);
 	const btvp = new TracetoolTreeDataProvider(getBookmarksChildren);
 	const swvp = new StatsWebviewViewProvider(context.extensionUri);
 
 	//const rfwvp =	window.registerWebviewViewProvider('trace-find', fwvp);
 	const rntvp = window.registerTreeDataProvider('trace-navigation', ntvp);
-	const rpltvp = window.registerTreeDataProvider('trace-policyList', pltvp);
 	const rtltvp =	window.registerTreeDataProvider('trace-transactionList', tltvp);
+	const rpltvp = window.registerTreeDataProvider('transaction-policyList', pltvp);
 	const rbtvp = window.registerTreeDataProvider('trace-bookmarks', btvp);
 	const rswvp =	window.registerWebviewViewProvider('trace-stats', swvp);
 

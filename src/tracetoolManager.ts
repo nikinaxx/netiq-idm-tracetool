@@ -1,4 +1,4 @@
-import { TreeItem, TreeItemCollapsibleState, window } from 'vscode';
+import { window, Event, EventEmitter } from 'vscode';
 import * as rf from './regexFunctions';
 import { DOMParser } from 'xmldom';
 import * as xpath from 'xpath';
@@ -9,8 +9,14 @@ export class TracetoolManager
     private static _instance: TracetoolManager;
 
     private _currentPosition: number;
+    private _onCurrentPositionChanged: EventEmitter<number|undefined|void> = new EventEmitter<number|undefined|void>();
+    readonly onCurrentPositionChanged: Event<number|undefined|void> = this._onCurrentPositionChanged.event;
+
     private _allTransactions: Transaction[];
+
     private _currentTransaction: Transaction|undefined;
+    private _onCurrentTransactionChanged: EventEmitter<Transaction|undefined|void> = new EventEmitter<Transaction|undefined|void>();
+    readonly onCurrentTransactionChanged: Event<Transaction|undefined|void> = this._onCurrentTransactionChanged.event;
 
     private constructor()
     {
@@ -29,23 +35,31 @@ export class TracetoolManager
         return this._currentPosition;
     }
     public set currentPosition(value: number) {
-        this._currentPosition = value;
+        if (this._currentPosition !== value) {
+            this._currentPosition = value;
+            this._onCurrentPositionChanged.fire();
+            // Check if current transaction has changed
+            this.currentTransaction = this.findCurrentTransaction();
+        }
     }
 
     public get allTransactions() {
-        this._allTransactions = this.getAllTransactions();
+        this._allTransactions = this.findAllTransactions();
         return this._allTransactions;
-    }
-    public set allTransactions(value: Transaction[]) {
-        this._allTransactions = value;
     }
 
     public get currentTransaction() {
-        this._currentTransaction = this.getCurrentTransaction();
+        this._currentTransaction = this.findCurrentTransaction();
         return this._currentTransaction;
     }
+    public set currentTransaction(value: Transaction|undefined) {
+        if (this._currentTransaction !== value) {
+            this._currentTransaction = value;
+            this._onCurrentTransactionChanged.fire(value);
+        }
+    }
 
-    private getAllTransactions() {
+    private findAllTransactions() {
         const activeEditor = window.activeTextEditor;
         if (!activeEditor) {return [];} 
 
@@ -71,7 +85,8 @@ export class TracetoolManager
                 }
                 currentOpenTransactions.push(transaction);
             }
-            if (currentEdge[0] === 'End transaction' || currentEdge[0] === 'Discarding transaction') {
+            // TODO: Ugotovi ali se lahko transaction kdaj konča z discarding in da nima End transaction
+            if (currentEdge[0] === 'End transaction') { // || currentEdge[0] === 'Discarding transaction'
                 const lineEndIndex = getLineEndIndex(currentEdge.index);
                 if (currentOpenTransactions.length > 0) {
                     const currentOpenTransaction = currentOpenTransactions[currentOpenTransactions.length-1];
@@ -86,14 +101,14 @@ export class TracetoolManager
         return transactions;
     }
 
-    private getCurrentTransaction() {
+    private findCurrentTransaction() {
         const activeEditor = window.activeTextEditor;
         if (!activeEditor) {
             return undefined;
         }
         let currentTransactionList = this.allTransactions.filter(e => 
-            e.startIndex && 
-            e.endIndex && 
+            e.startIndex !== undefined && 
+            e.endIndex !== undefined && 
             e.startIndex < this.currentPosition && this.currentPosition < e.endIndex
         );
         if (currentTransactionList.length === 0) {
@@ -110,6 +125,7 @@ export class Transaction {
     private _text: string = "";
     private _xml: Document|undefined = undefined;
     private _eventTypes: string[] = [];
+    private _policies: string[] = [];
     private _startTimestamp: string|undefined = undefined;
     private _endTimestamp: string|undefined = undefined;
 
@@ -130,6 +146,10 @@ export class Transaction {
         this._eventTypes = this.extractTypesFromXML();
         return this._eventTypes;
     }
+    public get policies() {
+        this._policies = rf.uniqueMatches(this.text, "(?<=Applying policy:) %\\+C%14C(.*)%-C", 1);
+        return this._policies;
+    }
     public get startTimestamp() {
         const timestampMatches = rf.matchTraceTimestamps(this.text);
         if (timestampMatches.length === 0) {
@@ -148,7 +168,7 @@ export class Transaction {
     }
 
     private extractTextFromDocument() {
-        if (!this.startIndex || !this.endIndex) { 
+        if (this.startIndex === undefined || this.endIndex === undefined)  { 
             return "";
         }
 

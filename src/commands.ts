@@ -92,7 +92,7 @@ export function goToTransactionStartCommand(item: TracetoolTreeItem) {
         window.showErrorMessage('No item or item doesnt have regex');
         return;
     }
-    if (!item.transaction || !item.transaction.startIndex) {
+    if (!item.transaction || item.transaction.startIndex === undefined) {
         window.showErrorMessage('Item doesnt have an transaction or transaction start index');
         return;
     }
@@ -110,7 +110,7 @@ export function goToTransactionEndCommand(item: TracetoolTreeItem) {
         window.showErrorMessage('No item or item doesnt have regex');
         return;
     }
-    if (!item.transaction || !item.transaction.endIndex) {
+    if (!item.transaction || item.transaction.endIndex === undefined) {
         window.showErrorMessage('Item doesnt have an transaction or transaction end index');
         return;
     }
@@ -118,7 +118,10 @@ export function goToTransactionEndCommand(item: TracetoolTreeItem) {
     if (!activeEditor) {return;}
     
     const startIndex = getLineStartIndex(item.transaction.endIndex);
-    if (!startIndex) { return; }
+    if (startIndex === undefined) { 
+        window.showErrorMessage('Item doesnt have transaction end index');
+        return;
+    }
     const startPosition = activeEditor.document.positionAt(item.transaction.endIndex);
     const lineText = activeEditor.document.lineAt(startPosition.line).text;
 
@@ -134,14 +137,14 @@ export function currentTransactionOccuranceCommand(item: TracetoolTreeItem) {
     if (!activeEditor) {return;}
     const tracetoolManager = TracetoolManager.instance;
     const currentTransaction = tracetoolManager.currentTransaction;
-    if (!currentTransaction || ! currentTransaction.startIndex) {
+    if (!currentTransaction || currentTransaction.startIndex === undefined) {
 		window.showErrorMessage('No current transaction');
         return;
     }
     const text = currentTransaction.text;
     const match = rf.getFirstOccurance(text, item.searchRegex);
     if (!match || !match.index) {
-        window.showErrorMessage('No match');
+        window.showInformationMessage('No match');
         return;
     }
     match.index += currentTransaction.startIndex;
@@ -160,7 +163,10 @@ export function previousOccuranceCommand(item: TracetoolTreeItem) {
 
     const text = activeEditor.document.getText();
     const match = rf.getPrevOccurance(text, tracetoolManager.currentPosition, item.searchRegex);
-    if (!match || !match.index) {return;}
+    if (!match || !match.index) {
+        window.showInformationMessage('No match');
+        return;
+    }
 
     revealPosition(match.index, match[0].length);
 }
@@ -176,7 +182,10 @@ export function nextOccuranceCommand(item: TracetoolTreeItem) {
 
     const text = activeEditor.document.getText();
     const match = rf.getNextOccurance(text, tracetoolManager.currentPosition, item.searchRegex);
-    if (!match || !match.index) {return;}
+    if (!match || !match.index) {
+        window.showInformationMessage('No match');
+        return;
+    }
 
     revealPosition(match.index, match[0].length);
 }
