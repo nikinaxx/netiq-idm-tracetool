@@ -98,6 +98,21 @@ export class TracetoolManager
                 }
             }
         }
+
+        // Fix first and last transaction indexes
+        if (transactions.length >= 2) {
+            if (transactions[0].startIndex === undefined) {
+                transactions[0].startIndex = 0;
+            }
+            if (transactions[transactions.length-1].endIndex === undefined) {
+                const activeEditor = window.activeTextEditor;
+                if (activeEditor !== undefined) {
+                    const text = activeEditor.document.getText();
+                    transactions[transactions.length-1].endIndex = text.length - 1;
+                } 
+            }
+        }
+
         return transactions;
     }
 

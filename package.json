@@ -88,6 +88,12 @@
 				"title": "Go to transaction end",
 				"icon": "media/icons/arrowBottom.svg",
 				"category": "Tracetool"
+			},
+			{
+				"command": "tracetool.debugCurrentTransaction",
+				"title": "Debug current transaction",
+				"icon": "media/icons/tools.svg",
+				"category": "Tracetool"
 			}
 		],
 		"taskDefinitions": [],

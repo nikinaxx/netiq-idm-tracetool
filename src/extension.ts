@@ -1,6 +1,6 @@
 import { ExtensionContext, window, commands } from 'vscode';
 import { StatsWebviewViewProvider } from './traceStats';
-import { showInputBox, nextOccuranceCommand, previousOccuranceCommand, currentTransactionOccuranceCommand, goToTransactionStartCommand, goToTransactionEndCommand } from './commands';
+import { showInputBox, nextOccuranceCommand, previousOccuranceCommand, currentTransactionOccuranceCommand, goToTransactionStartCommand, goToTransactionEndCommand, debugCurrentTransactionCommand } from './commands';
 import { TracetoolTreeDataProvider, getBookmarksChildren, getTransactionPolicyListChildren, getTraceNavigationChildren, getTransactionListChildren } from './tracetoolTreeDataProvider';
 
 export function activate(context: ExtensionContext) {
@@ -29,8 +29,9 @@ export function activate(context: ExtensionContext) {
 	const eoc = commands.registerCommand('tracetool.transactionOccurance', (item) => currentTransactionOccuranceCommand(item));
 	const gtc = commands.registerCommand('tracetool.goToTransactionStart', (item) => goToTransactionStartCommand(item));
 	const gtbc = commands.registerCommand('tracetool.goToTransactionEnd', (item) => goToTransactionEndCommand(item));
+	const dctc = commands.registerCommand('tracetool.debugCurrentTransaction', () => debugCurrentTransactionCommand());
 
-	context.subscriptions.push(abc, poc, noc, eoc, gtc, gtbc);
+	context.subscriptions.push(abc, poc, noc, eoc, gtc, gtbc, dctc);
 
 	// Events
 	

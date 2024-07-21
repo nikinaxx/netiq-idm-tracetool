@@ -190,6 +190,12 @@ export function nextOccuranceCommand(item: TracetoolTreeItem) {
     revealPosition(match.index, match[0].length);
 }
 
+export function debugCurrentTransactionCommand() {
+    const tracetoolManager = TracetoolManager.instance;
+    const currentTransaction = tracetoolManager.currentTransaction;
+    console.log(currentTransaction);
+}
+
 function revealPosition(index: number, selectionLength: number) {
     const activeEditor = window.activeTextEditor;
     if (!activeEditor) {return;}
