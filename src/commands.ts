@@ -190,6 +190,24 @@ export function nextOccuranceCommand(item: TracetoolTreeItem) {
     revealPosition(match.index, match[0].length);
 }
 
+export function lastOccuranceCommand(item: TracetoolTreeItem) {
+    if (!item || !item.searchRegex) {
+        window.showErrorMessage('No item or item doesnt have regex');
+        return;
+    }
+    const activeEditor = window.activeTextEditor;
+    if (!activeEditor) {return;}
+
+    const text = activeEditor.document.getText();
+    const match = rf.getLastOccurance(text, item.searchRegex);
+    if (!match || !match.index) {
+        window.showInformationMessage('No match');
+        return;
+    }
+
+    revealPosition(match.index, match[0].length);
+}
+
 export function debugCurrentTransactionCommand() {
     const tracetoolManager = TracetoolManager.instance;
     const currentTransaction = tracetoolManager.currentTransaction;

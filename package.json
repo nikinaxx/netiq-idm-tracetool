@@ -72,6 +72,12 @@
 				"category": "Tracetool"
 			},
 			{
+				"command": "tracetool.lastOccurance",
+				"title": "Last occurance",
+				"icon": "media/icons/arrowBottom.svg",
+				"category": "Tracetool"
+			},
+			{
 				"command": "tracetool.transactionOccurance",
 				"title": "Current transaction first occurance",
 				"icon": "media/icons/arrowRight.svg",
@@ -101,14 +107,19 @@
 			"view/title": [],
 			"view/item/context": [
 				{
-					"command": "tracetool.nextOccurance",
+					"command": "tracetool.previousOccurance",
 					"group": "inline@1",
 					"when": "view == trace-navigation || view == transaction-policyList"
 				},
 				{
-					"command": "tracetool.previousOccurance",
-					"group": "inline",
+					"command": "tracetool.nextOccurance",
+					"group": "inline@2",
 					"when": "view == trace-navigation || view == transaction-policyList"
+				},
+				{
+					"command": "tracetool.lastOccurance",
+					"group": "inline@3",
+					"when": "view == trace-navigation"
 				},
 				{
 					"command": "tracetool.transactionOccurance",
