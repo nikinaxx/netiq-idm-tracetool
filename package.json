@@ -78,14 +78,14 @@
 				"category": "Tracetool"
 			},
 			{
-				"command": "tracetool.goToTransaction",
-				"title": "Go to transaction",
+				"command": "tracetool.goToTransactionStart",
+				"title": "Go to transaction start",
 				"icon": "media/icons/arrowRight.svg",
 				"category": "Tracetool"
 			},
 			{
-				"command": "tracetool.goToTransactionBottom",
-				"title": "Go to transaction bottom",
+				"command": "tracetool.goToTransactionEnd",
+				"title": "Go to transaction end",
 				"icon": "media/icons/arrowBottom.svg",
 				"category": "Tracetool"
 			}
@@ -105,17 +105,17 @@
 					"when": "view == trace-navigation || view == trace-policyList"
 				},
 				{
-					"command": "tracetool.eventOccurance",
+					"command": "tracetool.transactionOccurance",
 					"group": "inline",
-					"when": "view == trace-navigation || view == trace-policyList"
+					"when": "view == trace-policyList"
 				},
 				{
-					"command": "tracetool.goToTransaction",
+					"command": "tracetool.goToTransactionStart",
 					"group": "inline",
 					"when": "view == trace-transactionList"
 				},
 				{
-					"command": "tracetool.goToTransactionBottom",
+					"command": "tracetool.goToTransactionEnd",
 					"group": "inline@1",
 					"when": "view == trace-transactionList"
 				}

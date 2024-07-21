@@ -1,7 +1,53 @@
-import { TreeDataProvider, TreeItem, TreeItemCollapsibleState, window } from 'vscode';
+import { Event, EventEmitter, TreeDataProvider, TreeItem, TreeItemCollapsibleState, window, workspace } from 'vscode';
 import { TracetoolManager, Transaction } from './tracetoolManager';
 import { formatTimestamp as formatTimestamp } from './commands';
 import * as rf from './regexFunctions';
+
+export class TracetoolTreeDataProvider implements TreeDataProvider<TracetoolTreeItem> {
+
+    private _builderFunction: (element?: TracetoolTreeItem) => Thenable<TracetoolTreeItem[]>;
+
+    private _refreshOnChanges: boolean;
+    private _onDidChangeTreeData: EventEmitter<TracetoolTreeItem | undefined | void> = new EventEmitter<TracetoolTreeItem | undefined | void>();
+    readonly onDidChangeTreeData: Event<TracetoolTreeItem | undefined | void> = this._onDidChangeTreeData.event;
+
+    constructor(builderFunction: (element?: TracetoolTreeItem) => Thenable<TracetoolTreeItem[]>, refreshOnChanges: boolean = false) {
+        this._builderFunction = builderFunction;
+        this._refreshOnChanges = refreshOnChanges;
+        
+        window.onDidChangeActiveTextEditor(() => this.refresh());
+        workspace.onDidChangeTextDocument(() => this.refresh());
+    }
+
+    getTreeItem(element: TracetoolTreeItem): TreeItem {
+        return element;
+    }
+
+    getChildren(element?: TracetoolTreeItem): Thenable<TracetoolTreeItem[]> {
+        return this._builderFunction(element);
+    }
+
+    refresh(): void {
+        if (!this._refreshOnChanges) {
+            return;
+        }
+        this._onDidChangeTreeData.fire();
+    }
+}
+
+export class TracetoolTreeItem extends TreeItem {
+    public searchRegex: string;
+    public transaction: Transaction|undefined;
+
+    constructor(public readonly labelText: string, searchRegex: string, transaction?: Transaction, descriptionText?: string) {
+        super(labelText, transaction && transaction.children && transaction.children.length > 0 ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.None);
+        this.contextValue = 'tracetool-tree-item'; // Used for "when" condition in package.json
+        this.command = undefined; // Make item non-clickable
+        this.searchRegex = searchRegex;
+        this.transaction = transaction;
+        this.description = descriptionText;
+    }
+}
 
 export function getTraceNavigationChildren(element?: TracetoolTreeItem): Thenable<TracetoolTreeItem[]> {
     if (element) {
@@ -65,36 +111,5 @@ export function getBookmarksChildren(element?: TracetoolTreeItem): Thenable<Trac
             new TracetoolTreeItem('Bookmark 5', "")
         ];
         return Promise.resolve(bookmarkItems);
-    }
-}
-
-export class TracetoolTreeDataProvider implements TreeDataProvider<TracetoolTreeItem> {
-
-    private _builderFunction: (element?: TracetoolTreeItem) => Thenable<TracetoolTreeItem[]>;
-
-    constructor(builderFunction: (element?: TracetoolTreeItem) => Thenable<TracetoolTreeItem[]>) {
-        this._builderFunction = builderFunction;
-    }
-
-    getTreeItem(element: TracetoolTreeItem): TreeItem {
-        return element;
-    }
-
-    getChildren(element?: TracetoolTreeItem): Thenable<TracetoolTreeItem[]> {
-        return this._builderFunction(element);
-    }
-}
-
-export class TracetoolTreeItem extends TreeItem {
-    public searchRegex: string;
-    public transaction: Transaction|undefined;
-
-    constructor(public readonly labelText: string, searchRegex: string, transaction?: Transaction, descriptionText?: string) {
-        super(labelText, transaction && transaction.children && transaction.children.length > 0 ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.None);
-        this.contextValue = 'tracetool-tree-item'; // Used for "when" condition in package.json
-        this.command = undefined; // Make item non-clickable
-        this.searchRegex = searchRegex;
-        this.transaction = transaction;
-        this.description = descriptionText;
     }
 }

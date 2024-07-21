@@ -87,7 +87,7 @@ export async function showInputBox() {
 	activeEditor.setDecorations(decorator.gutterDecoration, [decoration]);
 }
 
-export function goToTransactionCommand(item: TracetoolTreeItem) {
+export function goToTransactionStartCommand(item: TracetoolTreeItem) {
     if (!item || !item.searchRegex) {
         window.showErrorMessage('No item or item doesnt have regex');
         return;
@@ -105,7 +105,7 @@ export function goToTransactionCommand(item: TracetoolTreeItem) {
     revealPosition(item.transaction.startIndex, startLineText.length);
 }
 
-export function goToTransactionBottomCommand(item: TracetoolTreeItem) {
+export function goToTransactionEndCommand(item: TracetoolTreeItem) {
     if (!item || !item.searchRegex) {
         window.showErrorMessage('No item or item doesnt have regex');
         return;
