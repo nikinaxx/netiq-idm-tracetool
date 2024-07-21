@@ -200,13 +200,15 @@
 						"Screen center"
 					]
 				},
-				"tracetool.fileOpen.stickToBottom": {
-					"type": "boolean",
-					"default": true
-				},
 				"tracetool.match.select": {
 					"type": "boolean",
-					"default": true
+					"default": true,
+					"description": "Select the text when match is found. For example 'Start transaction'."
+				},
+				"tracetool.fileOpen.stickToBottom": {
+					"type": "boolean",
+					"default": true,
+					"description": "Start following the end of the trace as soon as file is opened."
 				}
 			}
 		}

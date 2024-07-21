@@ -1,4 +1,4 @@
-import { window, Position, Range, Uri, OverviewRulerLane, ThemeColor, TextEditorDecorationType, DecorationRenderOptions, TextEditorRevealType, Selection } from 'vscode';
+import { window, Position, Range, Uri, OverviewRulerLane, ThemeColor, TextEditorDecorationType, DecorationRenderOptions, TextEditorRevealType, Selection, workspace } from 'vscode';
 import * as rf from './regexFunctions';
 import { TracetoolManager } from './tracetoolManager';
 import { TracetoolTreeItem } from './tracetoolTreeDataProvider';
@@ -223,8 +223,16 @@ function revealPosition(index: number, selectionLength: number) {
     const endPosition = activeEditor.document.positionAt(index + selectionLength);
 
     // Select the match in the editor
-    activeEditor.selection = new Selection(startPosition, endPosition);
     activeEditor.revealRange(new Range(startPosition, endPosition), TextEditorRevealType.InCenter);
+
+    const matchSelect = workspace.getConfiguration('tracetool').get<boolean>('match.select');
+    if (matchSelect === undefined) {
+        window.showErrorMessage("Setting 'match.select' is undefined");
+        return; 
+    }
+    if (matchSelect) {
+        activeEditor.selection = new Selection(startPosition, endPosition);
+    } 
 
     // Update the current position to start the next search from here
     tracetoolManager.currentPosition = index + selectionLength - 1; // -1 because same text will be matched if you change direction and you had to click twice

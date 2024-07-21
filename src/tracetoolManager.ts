@@ -1,4 +1,4 @@
-import { window, Event, EventEmitter, workspace } from 'vscode';
+import { window, Event, EventEmitter, workspace, Position } from 'vscode';
 import * as rf from './regexFunctions';
 import { DOMParser } from 'xmldom';
 import * as xpath from 'xpath';
@@ -32,6 +32,7 @@ export class TracetoolManager
     }
 
     public get currentPosition() {
+        this.currentPosition = this.getCurrentPosition();
         return this._currentPosition;
     }
     public set currentPosition(value: number) {
@@ -57,6 +58,37 @@ export class TracetoolManager
             this._currentTransaction = value;
             this._onCurrentTransactionChanged.fire(value);
         }
+    }
+
+    private getCurrentPosition() {
+        const currentPositionMode = workspace.getConfiguration('tracetool').get<string>('currentPositionMode');
+        if (!currentPositionMode) {
+            window.showErrorMessage("Setting 'regex.transactionEdge' is undefined");
+            return 0; 
+        }
+
+        const activeEditor = window.activeTextEditor;
+        if (!activeEditor) {return 0;} 
+
+        if (currentPositionMode === "Last search") {
+            return this._currentPosition;
+        } else if (currentPositionMode === "Cursor position") {
+            const cursorPosition = activeEditor.selection.active;
+            const cursorPositionIndex = activeEditor.document.offsetAt(cursorPosition);
+            return cursorPositionIndex;
+        } else if (currentPositionMode === "Screen center") {
+            const visibleRanges = activeEditor.visibleRanges;
+            if (visibleRanges.length === 0) {return 0;}
+            const topLine = visibleRanges[0].start.line;
+            const bottomLine = visibleRanges[0].end.line;
+            const centerLine = Math.floor((topLine + bottomLine) / 2);
+            const centerLinePosition = new Position(centerLine, 0);
+            const centerLineIndex = activeEditor.document.offsetAt(centerLinePosition);
+            return centerLineIndex;
+        } else {
+            window.showErrorMessage(`Setting 'regex.transactionEdge' is set to unknown value: ${currentPositionMode}`);
+            return 0;
+        }			
     }
 
     private findAllTransactions() {
