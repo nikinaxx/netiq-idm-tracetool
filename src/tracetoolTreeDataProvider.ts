@@ -54,12 +54,23 @@ export function getTraceNavigationChildren(element?: TracetoolTreeItem): Thenabl
     if (element) {
         return Promise.resolve([]);
     } else {
+        const conf = workspace.getConfiguration('tracetool');
+		const regexstartTransaction = conf.get<string>('regex.startTransaction');
+		const regexapplyingPolicy = conf.get<string>('regex.applyingPolicy');
+		const regexapplyingRule = conf.get<string>('regex.applyingRule');
+		const regexqueryResult = conf.get<string>('regex.queryResult');
+		const regexsubscriberResult = conf.get<string>('regex.subscriberResult');
+		if (!regexstartTransaction || !regexapplyingPolicy || !regexapplyingRule || !regexqueryResult || !regexsubscriberResult) {
+			window.showErrorMessage("Settings 'regex.startTransaction', 'regex.applyingPolicy', 'regex.applyingRule', 'regex.queryResult' or 'regex.subscriberResult' are undefined");
+            return Promise.resolve([]);
+		}
+
         const navItems = [
-            new TracetoolTreeItem('Start transaction', 'Start transaction'),
-            new TracetoolTreeItem('Applying policy', 'Applying policy'),
-            new TracetoolTreeItem('Applying rule', 'Applying rule'),
-            new TracetoolTreeItem('Query result', 'from policy result\\\\|Read result'), // escape regex by \\ and escape that to use in string by \\
-            new TracetoolTreeItem('Subscriber result', 'Submitting document to subscriber shim')
+            new TracetoolTreeItem('Start transaction', regexstartTransaction),
+            new TracetoolTreeItem('Applying policy', regexapplyingPolicy),
+            new TracetoolTreeItem('Applying rule', regexapplyingRule),
+            new TracetoolTreeItem('Query result', regexqueryResult),
+            new TracetoolTreeItem('Subscriber result', regexsubscriberResult)
         ];
         return Promise.resolve(navItems);
     }

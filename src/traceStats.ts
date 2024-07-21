@@ -12,7 +12,7 @@ export class StatsWebviewViewProvider implements vscode.WebviewViewProvider {
 	constructor(extensionUri: vscode.Uri) {
 		this._extensionUri = extensionUri;
 
-		this.startAutoRefresh();
+		this.autoRefreshStats();
 	}
 
 	public resolveWebviewView(webviewView: vscode.WebviewView, context: vscode.WebviewViewResolveContext, _token: vscode.CancellationToken,) {
@@ -46,8 +46,14 @@ export class StatsWebviewViewProvider implements vscode.WebviewViewProvider {
 		});
 	}
 
-	private startAutoRefresh() {
-		const refreshInterval = 1000; // Refresh every second (1000 milliseconds)
+	private autoRefreshStats() {
+		const refreshStatsInterval = vscode.workspace.getConfiguration('tracetool').get<number>('refreshStatsInterval');
+		if (!refreshStatsInterval) {
+			vscode.window.showErrorMessage("Setting 'regex.refreshStatsInterval' is undefined");
+			return; 
+		}
+
+		const refreshInterval = refreshStatsInterval; // Refresh every second (1000 milliseconds)
 		setInterval(() => {
 			this.refreshTraceStats();
 			this.refreshTotalErrorsStats();
@@ -81,10 +87,19 @@ export class StatsWebviewViewProvider implements vscode.WebviewViewProvider {
         if (!editor) { return; }
 		if (!this._view) { return; }
 
+		const conf = vscode.workspace.getConfiguration('tracetool');
+		const regexWarn = conf.get<string>('regex.warn');
+		const regexError = conf.get<string>('regex.error');
+		const regexFatal = conf.get<string>('regex.fatal');
+		if (!regexWarn || !regexError || !regexFatal) {
+			vscode.window.showErrorMessage("Settings 'regex.warn', 'regex.error' or 'regex.fatal' are undefined");
+			return []; 
+		}
+
 		const text = editor.document.getText();
-		const warnCount = rf.countMatches(text, "warn");
-		const errorCount = rf.countMatches(text, "error");
-		const fatalount = rf.countMatches(text, "fatal");
+		const warnCount = rf.countMatches(text, regexWarn);
+		const errorCount = rf.countMatches(text, regexError);
+		const fatalount = rf.countMatches(text, regexFatal);
 
 		this._view.webview.postMessage({ command: 'refreshTotalErrorsStats', countWarn: warnCount, countError: errorCount, countFatal: fatalount });
 	}
@@ -97,12 +112,21 @@ export class StatsWebviewViewProvider implements vscode.WebviewViewProvider {
 		let warnCount: number|string = 0;
 		let errorCount: number|string = 0;
 		let fatalount: number|string = 0;
+
+		const conf = vscode.workspace.getConfiguration('tracetool');
+		const regexWarn = conf.get<string>('regex.warn');
+		const regexError = conf.get<string>('regex.error');
+		const regexFatal = conf.get<string>('regex.fatal');
+		if (!regexWarn || !regexError || !regexFatal) {
+			vscode.window.showErrorMessage("Settings 'regex.warn', 'regex.error' or 'regex.fatal' are undefined");
+			return []; 
+		}
 		
 		const tracetoolManager = TracetoolManager.instance;
 		if (tracetoolManager.currentTransaction) {
-			warnCount = rf.countMatches(tracetoolManager.currentTransaction.text, "warn");
-			errorCount = rf.countMatches(tracetoolManager.currentTransaction.text, "error");
-			fatalount = rf.countMatches(tracetoolManager.currentTransaction.text, "fatal");
+			warnCount = rf.countMatches(tracetoolManager.currentTransaction.text, regexWarn);
+			errorCount = rf.countMatches(tracetoolManager.currentTransaction.text, regexError);
+			fatalount = rf.countMatches(tracetoolManager.currentTransaction.text, regexFatal);
 		} else {
 			warnCount = "No transaction";
 			errorCount = "No transaction";

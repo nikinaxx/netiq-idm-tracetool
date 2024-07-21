@@ -137,7 +137,75 @@
 					"when": "view == trace-transactionList"
 				}
 			]
-		}
+		},
+		"configuration": {
+            "type": "object",
+            "title": "Tracetool",
+            "properties": {
+                "tracetool.regex.traceTimestamp": {
+                    "type": "string",
+                    "default": "\\[(.*)\\]:"
+                },
+                "tracetool.regex.warn": {
+                    "type": "string",
+                    "default": "warn"
+                },
+                "tracetool.regex.error": {
+                    "type": "string",
+                    "default": "error"
+                },
+                "tracetool.regex.fatal": {
+                    "type": "string",
+                    "default": "fatal"
+                },
+				"tracetool.regex.transactionEdge": {
+                    "type": "string",
+                    "default": "Start transaction|End transaction"
+                },
+				"tracetool.regex.firstNds": {
+                    "type": "string",
+                    "default": "<nds.+>(.|\\n)+?</nds>"
+                },
+				"tracetool.regex.startTransaction": {
+                    "type": "string",
+                    "default": "Start transaction"
+                },
+				"tracetool.regex.applyingPolicy": {
+                    "type": "string",
+                    "default": "Applying policy"
+                },
+				"tracetool.regex.applyingRule": {
+                    "type": "string",
+                    "default": "Applying rule"
+                },
+				"tracetool.regex.queryResult": {
+                    "type": "string",
+                    "default": "Query from policy result|Read result"
+                },
+				"tracetool.regex.subscriberResult": {
+                    "type": "string",
+                    "default": "Submitting document to subscriber shim"
+                },
+                "tracetool.refreshStatsInterval": {
+                    "type": "number",
+                    "default": 1000,
+                    "description": "Update interval in seconds."
+                },
+				"tracetool.currentPositionMode": {
+                    "type": "string",
+                    "default": "Last search",
+					"enum": ["Last search", "Cursor position", "Screen center"]
+                },
+				"tracetool.fileOpen.stickToBottom": {
+                    "type": "boolean",
+                    "default": true
+                },
+				"tracetool.match.select": {
+                    "type": "boolean",
+                    "default": true
+                }
+            }
+        }
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run package",

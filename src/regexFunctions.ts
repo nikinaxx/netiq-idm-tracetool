@@ -1,3 +1,5 @@
+import { workspace, window } from "vscode";
+
 export function findAllMatches(text: string, regexStr: string) {
     const regex = new RegExp(regexStr, "g");
     const matches = [...text.matchAll(regex)];
@@ -56,5 +58,10 @@ export function getIndexOfNextOccurance(text: string, currentIndex: number, rege
 }
 
 export function matchTraceTimestamps(text: string) {
-    return findAllMatches(text, "\\[(.*)\\]:");
+    const timestampRegex = workspace.getConfiguration('tracetool').get<string>('regex.traceTimestamp');
+    if (!timestampRegex) {
+        window.showErrorMessage("Setting 'regex.traceTimestamp' is undefined");
+        return []; 
+    }
+    return findAllMatches(text, timestampRegex);
 }

@@ -1,4 +1,4 @@
-import { window, Event, EventEmitter } from 'vscode';
+import { window, Event, EventEmitter, workspace } from 'vscode';
 import * as rf from './regexFunctions';
 import { DOMParser } from 'xmldom';
 import * as xpath from 'xpath';
@@ -63,8 +63,14 @@ export class TracetoolManager
         const activeEditor = window.activeTextEditor;
         if (!activeEditor) {return [];} 
 
+        const transactionEdgeRegex = workspace.getConfiguration('tracetool').get<string>('regex.transactionEdge');
+        if (!transactionEdgeRegex) {
+            window.showErrorMessage("Setting 'regex.transactionEdge' is undefined");
+            return []; 
+        }
+
         const text = activeEditor.document.getText();
-        const allTransactionEdges = rf.findAllMatches(text, "Start transaction\|End transaction\|Discarding transaction");
+        const allTransactionEdges = rf.findAllMatches(text, transactionEdgeRegex); // v regex \|Discarding transaction to spada pod spodnji TODO
 
         return this.calculateTransactionsFromEdges(allTransactionEdges);
     }
@@ -203,8 +209,14 @@ export class Transaction {
             return undefined;
         }
 
+        const firstNdsRegex = workspace.getConfiguration('tracetool').get<string>('regex.firstNds');
+        if (!firstNdsRegex) {
+            window.showErrorMessage("Setting 'regex.firstNds' is undefined");
+            return undefined; 
+        }
+
         // Find first <nds></nds>
-        const match = rf.getFirstOccurance(this.text, "<nds.+>(.|\\n)+?</nds>");
+        const match = rf.getFirstOccurance(this.text, firstNdsRegex);
         if (!match || !match[0]) {
             return undefined;
         }
