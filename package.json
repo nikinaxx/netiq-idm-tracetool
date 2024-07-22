@@ -2,7 +2,11 @@
 	"name": "netiq-idm-tracetool",
 	"displayName": "Tracetool",
 	"description": "NetIQ IDM advanced trace tool",
-	"publisher": "GenLan d.o.o.",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/nikinaxx/netiq-idm-tracetool"
+	},
+	"publisher": "nikvozelj",
 	"version": "0.5.0",
 	"engines": {
 		"vscode": "^1.53.0"
