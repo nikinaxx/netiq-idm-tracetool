@@ -7,7 +7,7 @@
 		"url": "https://github.com/nikinaxx/netiq-idm-tracetool"
 	},
 	"publisher": "nikvozelj",
-	"version": "0.5.0",
+	"version": "1.0.0",
 	"engines": {
 		"vscode": "^1.53.0"
 	},
