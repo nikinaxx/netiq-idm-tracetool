@@ -147,9 +147,10 @@ export function currentTransactionOccuranceCommand(item: TracetoolTreeItem) {
         window.showInformationMessage('No match');
         return;
     }
-    match.index += currentTransaction.startIndex;
+    const selectionStartIndex = currentTransaction.startIndex + match.index + match[1].length;
+    const selectionLength = match[2].length;
 
-    revealPosition(match.index, match[0].length);
+    revealPosition(selectionStartIndex, selectionLength);
 }
 
 export function previousOccuranceCommand(item: TracetoolTreeItem) {

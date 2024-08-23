@@ -93,7 +93,7 @@ export function getTransactionPolicyListChildren(element?: TracetoolTreeItem): T
 
         let policyItems: TracetoolTreeItem[] = [];
         currentTransaction.policies.forEach(policyName => {
-            const policyRegexStr = "%\\+C%14C" + policyName + "%-C";
+            const policyRegexStr = "(%\\+C%14C)(" + policyName + ")(%-C)";
             policyItems.push(new TracetoolTreeItem(policyName, policyRegexStr));
         });
 
