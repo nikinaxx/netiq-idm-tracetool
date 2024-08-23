@@ -75,7 +75,7 @@ export class TracetoolManager
         } else if (currentPositionMode === "Cursor position") {
             const cursorPosition = activeEditor.selection.active;
             const cursorPositionIndex = activeEditor.document.offsetAt(cursorPosition);
-            return cursorPositionIndex;
+            return cursorPositionIndex - 1;
         } else if (currentPositionMode === "Screen center") {
             const visibleRanges = activeEditor.visibleRanges;
             if (visibleRanges.length === 0) {return 0;}
